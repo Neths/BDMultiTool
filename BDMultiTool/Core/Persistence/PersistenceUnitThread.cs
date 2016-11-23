@@ -23,7 +23,7 @@ namespace BDMultiTool.Persistence {
 
         public void work() {
             while (keepWorking) {
-                if (App.appCoreIsInitialized) {
+                if (MyApp.appCoreIsInitialized) {
                     persistenceUnit.persist();
                     Thread.Sleep(1000);
                 } 

@@ -14,7 +14,7 @@ namespace BDMultiTool.Core {
 
         private CustomNotifyIcon() {
             notifyIcon = new System.Windows.Forms.NotifyIcon();
-            notifyIcon.Text = "BDMT v" + App.version;
+            notifyIcon.Text = "BDMT v" + MyApp.version;
             notifyIcon.Icon = BDMultiTool.Properties.Resources.trayIcon;
             notifyIcon.ContextMenu = createTrayIconContextMenu();
             notifyIcon.Visible = true;
@@ -39,7 +39,7 @@ namespace BDMultiTool.Core {
             System.Windows.Forms.ContextMenu contextMenu = new System.Windows.Forms.ContextMenu();
 
             System.Windows.Forms.MenuItem infoLabel = new System.Windows.Forms.MenuItem();
-            infoLabel.Text = "BDMT v" + App.version;
+            infoLabel.Text = "BDMT v" + MyApp.version;
 
             System.Windows.Forms.MenuItem exitMenuItem = new System.Windows.Forms.MenuItem();
             exitMenuItem.Text = "Exit";
@@ -52,7 +52,7 @@ namespace BDMultiTool.Core {
         }
 
         private void trayIconExit_Click(object sender, EventArgs e) {
-            App.exit();
+            MyApp.exit();
         }
 
         public void disposeNotifyIcon() {

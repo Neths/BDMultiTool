@@ -1,60 +1,76 @@
 ﻿using BDMultiTool.Core.Notification;
 using InputManager;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
+using NLog;
 
-namespace BDMultiTool.Core.PInvoke {
-    public class WindowAttacher {
-    private IntPtr windowHandle;
-        private WindowObserver windowEventHook;
-        private Window overlayWindow;
-        private const uint WM_KEYDOWN = 0x100;
-        private const uint WM_KEYUP = 0x101;
-        private const uint WM_SETTEXT = 0x000c;
+namespace BDMultiTool.Core.PInvoke
+{
+    public interface IWindowAttacher
+    {
+        void Attach(IntPtr handleToAttach);
+        void SendKeypress(Keys currentKey);
+    }
 
-        public WindowAttacher(IntPtr windowHandle, Window overlayWindow) {
-            if(windowHandle.Equals(IntPtr.Zero)) {
-                Debug.WriteLine("could not pinvoke!");
-                System.Windows.MessageBox.Show("Make sure BDO isn't initially minimized and this application is running as admin.", "Could not attach to BDO", MessageBoxButton.OK, MessageBoxImage.Error);
-                App.exit();
-            } else {
-                this.windowHandle = windowHandle;
-                this.overlayWindow = overlayWindow;
-                windowEventHook = new WindowObserver(windowHandle, observedWindowEvent);
-                SetForegroundWindow(windowHandle);
+    public class WindowAttacher : IWindowAttacher
+    {
+        private IntPtr _windowHandle;
+        private WindowObserver _windowEventHook;
+        private readonly IOverlay _overlay;
+        private readonly INotifier _notifier;
+        private readonly ILogger _logger;
+        private const uint WmKeydown = 0x100;
+        private const uint WmKeyup = 0x101;
+        private const uint WmSettext = 0x000c;
 
-                updateOverlay();
-                overlayWindow.Topmost = true;
-
-                ToasterThread.toaster.popToast("Info", "Welcome to BDMT v" + App.version);
-            }
-
+        public WindowAttacher(IOverlay overlay,INotifier notifier,  ILogger logger)
+        {
+            _logger = logger;
+            _overlay = overlay;
+            _notifier = notifier;
         }
 
-        private void observedWindowEvent(int windowEvent) {
+        public void Attach(IntPtr windowHandle)
+        {
+            if (windowHandle.Equals(IntPtr.Zero))
+            {
+                //_logger.Error("Make sure BDO isn't initially minimized and this application is running as admin.");
+                //Debug.WriteLine("could not pinvoke!");
+                //System.Windows.MessageBox.Show("Make sure BDO isn't initially minimized and this application is running as admin.", "Could not attach to BDO", MessageBoxButton.OK, MessageBoxImage.Error);
+                MyApp.exit();
+            }
+            else
+            {
+                _windowHandle = windowHandle;
+
+                _windowEventHook = new WindowObserver(windowHandle, ObservedWindowEvent);
+                SetForegroundWindow(windowHandle);
+
+                _overlay.Update(GetWindowArea());
+                _overlay.Topmost = true;
+            }
+        }
+
+        private void ObservedWindowEvent(int windowEvent) {
             switch (windowEvent) {
                 case WindowEventTypes.EVENT_OBJECT_FOCUS: {
-                        updateOverlay();
-                        overlayWindow.Show();
-                        App.minimized = false;
+                        _overlay.Update(GetWindowArea());
+                        _overlay.Show();
+                        MyApp.minimized = false;
                     }
                     break;
                 case WindowEventTypes.EVENT_OBJECT_HIDE: {
-                        App.minimized = true;
-                        overlayWindow.Hide();
-
-                        ToasterThread.toaster.popToast("Info", "BDMT has been minimized!");
+                        MyApp.minimized = true;
+                        _overlay.Hide();
+                        _notifier.Notify("Info", "BDMT has been minimized!");
                     }
                     break;
                 case WindowEventTypes.EVENT_OBJECT_LOCATIONCHANGE: {
-                        updateOverlay();
+                        _overlay.Update(GetWindowArea());
                     }
                     break;
                 case WindowEventTypes.EVENT_OBJECT_SHOW: {
@@ -66,43 +82,34 @@ namespace BDMultiTool.Core.PInvoke {
                     }
                     break;
                 case 0: {
-                        overlayWindow.Hide();
+                        _overlay.Hide();
                     }
                     break;
-                default:break;
+                default:
+                    break;
             }
         }
 
 
-        public void sendKeypress(System.Windows.Forms.Keys keyToSend) {
-            SetForegroundWindow(windowHandle);
+        public void SendKeypress(System.Windows.Forms.Keys keyToSend) {
+            SetForegroundWindow(_windowHandle);
             Keyboard.KeyPress(keyToSend);
             Thread.Sleep(50);
         }
 
-        public void sendKeyDown(System.Windows.Forms.Keys keyToSend) {
-            SetForegroundWindow(windowHandle);
+        public void SendKeyDown(System.Windows.Forms.Keys keyToSend) {
+            SetForegroundWindow(_windowHandle);
             Keyboard.KeyDown(keyToSend);
             Thread.Sleep(50);
         }
 
-        public void sendKeyUp(System.Windows.Forms.Keys keyToSend) {
-            SetForegroundWindow(windowHandle);
+        public void SendKeyUp(System.Windows.Forms.Keys keyToSend) {
+            SetForegroundWindow(_windowHandle);
             Keyboard.KeyUp(keyToSend);
             Thread.Sleep(50);
         }
 
-        private void updateOverlay() {
-            Size tempSize = getWindowSize();
-            Point tempLocation = getWindowLocation();
-            overlayWindow.Width = tempSize.Width-2;
-            overlayWindow.Height = tempSize.Height;
-
-            overlayWindow.Left = tempLocation.X+1;
-            overlayWindow.Top = tempLocation.Y-1;
-        }
-
-        public static IntPtr getHandleByWindowTitleBeginningWith(String title) {
+        public static IntPtr GetHandleByWindowTitleBeginningWith(String title) {
             foreach (Process currentProcess in Process.GetProcesses()) {
                 if(currentProcess.MainWindowTitle.StartsWith(title)) {
                     Debug.WriteLine("currentProcessWindow: " + currentProcess.MainWindowTitle);
@@ -113,26 +120,18 @@ namespace BDMultiTool.Core.PInvoke {
             return IntPtr.Zero;
         }
 
-        private Size getWindowSize() {
+        public Rect GetWindowArea()
+        {
             RECT rectStructure;
-            Size windowSize = new Size();
-            GetWindowRect(windowHandle, out rectStructure);
+            GetWindowRect(_windowHandle, out rectStructure);
 
-            windowSize.Width = rectStructure.Right - rectStructure.Left;
-            windowSize.Height = rectStructure.Bottom - rectStructure.Top;
-
-            return windowSize;
-        }
-
-        private Point getWindowLocation() {
-            RECT rectStructure;
-            Point windowLocation = new Point();
-            GetWindowRect(windowHandle, out rectStructure);
-
-            windowLocation.X = rectStructure.Left;
-            windowLocation.Y = rectStructure.Top;
-
-            return windowLocation;
+            return new Rect
+            {
+                X = rectStructure.Left,
+                Y = rectStructure.Top,
+                Width = rectStructure.Right - rectStructure.Left,
+                Height = rectStructure.Bottom - rectStructure.Top
+            };
         }
 
         [DllImport("user32.dll")]
@@ -145,10 +144,10 @@ namespace BDMultiTool.Core.PInvoke {
         private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
         [DllImport("user32.dll")]
-        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        public static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll")]
-        public static extern IntPtr PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        public static extern IntPtr PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct RECT {
@@ -159,4 +158,6 @@ namespace BDMultiTool.Core.PInvoke {
         }
 
     }
+
+
 }

@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E315EAA1-C3B3-4866-B2F5-7958CD5BC007}</ProjectGuid>
+    <ProjectGuid>{07B89302-1895-4B79-A60C-2DBD01C2078B}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BDMultiTool</RootNamespace>
-    <AssemblyName>BDMultiTool</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <RootNamespace>BDOHelpers</RootNamespace>
+    <AssemblyName>BDOHelpers</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -36,43 +36,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\trayIcon.ico</ApplicationIcon>
+    <StartupObject>BDOHelpers.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>BDMultiTool.Program</StartupObject>
+    <ApplicationIcon>Resources\trayIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="InputManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libraries\InputManager.dll</HintPath>
     </Reference>
-    <Reference Include="NAudio, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Libraries\NAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudio.WindowsMediaFormat, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Libraries\NAudio.WindowsMediaFormat.dll</HintPath>
-    </Reference>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.3.11\lib\net45\NLog.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NVorbis, Version=0.8.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Libraries\NVorbis.dll</HintPath>
-    </Reference>
-    <Reference Include="NVorbis.NAudioSupport, Version=0.5.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Libraries\NVorbis.NAudioSupport.dll</HintPath>
-    </Reference>
-    <Reference Include="SimpleInjector, Version=3.3.0.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
-      <HintPath>..\packages\SimpleInjector.3.3.0\lib\net45\SimpleInjector.dll</HintPath>
+    <Reference Include="SimpleInjector, Version=3.2.7.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\packages\SimpleInjector.3.2.7\lib\net45\SimpleInjector.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -92,85 +71,30 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Core\Notification\SoundNotification.cs" />
-    <Compile Include="Core\Persistence\XmlUtilities.cs" />
-    <Compile Include="Extensions\IServiceProviderExtensions.cs" />
-    <Compile Include="MacroAddControl.xaml.cs">
-      <DependentUpon>MacroAddControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="MacroGallery.xaml.cs">
-      <DependentUpon>MacroGallery.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="MacroItem.xaml.cs">
-      <DependentUpon>MacroItem.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Macros\CycleMacro.cs" />
-    <Compile Include="Macros\MacroItemModel.cs" />
-    <Compile Include="Macros\MacroManager.cs" />
-    <Compile Include="Macros\MacroManagerThread.cs" />
-    <Compile Include="MovableUserControl.xaml.cs">
+    <Compile Include="UserControls\MovableUserControl.xaml.cs">
       <DependentUpon>MovableUserControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Core\Persistence\PersistenceDeserializer.cs" />
-    <Compile Include="Core\Persistence\PersistenceContainer.cs" />
-    <Compile Include="Core\Persistence\PersistenceSerializer.cs" />
-    <Compile Include="Core\Persistence\PersistenceUnit.cs" />
-    <Compile Include="Core\Persistence\PersistenceUnitThread.cs" />
-    <Compile Include="NotificationWindow.xaml.cs">
-      <DependentUpon>NotificationWindow.xaml</DependentUpon>
+    <Compile Include="WindowAttacher.cs" />
+    <Compile Include="WindowEventTypes.cs" />
+    <Compile Include="WindowObserver.cs" />
+    <Compile Include="Windows\Overlay.xaml.cs">
+      <DependentUpon>Overlay.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="SettingsWindow.xaml.cs">
-      <DependentUpon>SettingsWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Utilities\BoxKeyboardPair.cs" />
-    <Compile Include="Core\BDMTConstants.cs" />
-    <Compile Include="Core\MultiToolMarkUpThread.cs" />
-    <Compile Include="Core\CustomNotifyIcon.cs" />
-    <Compile Include="Core\ThreadManager.cs" />
-    <Compile Include="Core\Notification\Toaster.cs" />
-    <Compile Include="Utilities\KeyToString.cs" />
-    <Compile Include="Core\PInvoke\WindowObserver.cs" />
-    <Compile Include="Core\PInvoke\WindowEventTypes.cs" />
-    <Compile Include="Core\PInvoke\WindowAttacher.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewModels\OverlayViewModel.cs" />
-    <Page Include="MacroAddControl.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="UserControls\MovableUserControl.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
-    <Page Include="MacroGallery.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="Windows\Overlay.xaml">
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MacroItem.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MovableUserControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="NotificationWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Overlay.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="SettingsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Overlay.xaml.cs">
-      <DependentUpon>Overlay.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -197,25 +121,48 @@
     <None Include="Resources\notifySound.ogg" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\addMacroIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\bdmtIcon.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\closeButton.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\todoListIcon.png" />
-    <Resource Include="Resources\macroMenuIcon.png" />
-    <Resource Include="Resources\exitIcon.png" />
-    <Resource Include="Resources\settingsIcon.png" />
-    <Resource Include="Resources\bdmtIcon.png" />
-    <Resource Include="Resources\resetMacroIcon.png" />
-    <Resource Include="Resources\addMacroIcon.png" />
     <Resource Include="Resources\deleteMacroIcon.png" />
-    <Resource Include="Resources\pauseMacroIcon.png" />
-    <Resource Include="Resources\playMacroIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\exitIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\macroBackground.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\macroMenuIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\pauseMacroIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\playMacroIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\resetMacroIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\resizeIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\settingsIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\todoListIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Resources\trayIcon.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -224,7 +171,6 @@
     <Content Include="Libraries\NAudio.WindowsMediaFormat.dll" />
     <Content Include="Libraries\NVorbis.dll" />
     <Content Include="Libraries\NVorbis.NAudioSupport.dll" />
-    <Resource Include="Resources\resizeIcon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

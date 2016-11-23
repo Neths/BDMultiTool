@@ -1,108 +1,104 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace BDMultiTool.Macros {
-    public class MacroItemModel : INotifyPropertyChanged {
+    public class MacroItemModel : INotifyPropertyChanged
+    {
 
-        private String macroName_ { get; set; }
-        public String macroName
+        private string _macroName;
+        public string MacroName
         {
-            get { return macroName_; }
+            get { return _macroName; }
             set
             {
-                macroName_ = value;
+                _macroName = value;
                 OnPropertyChanged("macroName");
             }
         }
 
-        private bool Paused_ { get; set; }
+        private bool _paused;
         public bool Paused
         {
-            get { return Paused_; }
+            get { return _paused; }
             set
             {
-                Paused_ = value;
+                _paused = value;
                 OnPropertyChanged("Paused");
             }
         }
 
-        private bool AddMode_ { get; set; }
+        private bool _addMode;
         public bool AddMode
         {
-            get { return AddMode_; }
+            get { return _addMode; }
             set
             {
-                AddMode_ = value;
+                _addMode = value;
                 OnPropertyChanged("AddMode");
             }
         }
 
-        private bool NotPaused_ { get; set; }
+        private bool _notPaused;
         public bool NotPaused
         {
-            get { return NotPaused_; }
+            get { return _notPaused; }
             set
             {
-                NotPaused_ = value;
+                _notPaused = value;
                 OnPropertyChanged("NotPaused");
             }
         }
 
-        private String coolDownTime_ { get; set; }
-        public String coolDownTime
+        private string _coolDownTime;
+        public string CoolDownTime
         {
-            get { return coolDownTime_; }
+            get { return _coolDownTime; }
             set
             {
-                coolDownTime_ = value;
+                _coolDownTime = value;
                 OnPropertyChanged("coolDownTime");
             }
         }
 
-        private String keyString_ { get; set; }
-        public String keyString
+        private string _keyString;
+        public string KeyString
         {
-            get { return keyString_; }
+            get { return _keyString; }
             set
             {
-                keyString_ = value;
+                _keyString = value;
                 OnPropertyChanged("keyString");
             }
         }
 
-        private String lifeTime_ { get; set; }
-        public String lifeTime
+        private string _lifeTime;
+        public string LifeTime
         {
-            get { return lifeTime_; }
+            get { return _lifeTime; }
             set
             {
-                lifeTime_ = value;
+                _lifeTime = value;
                 OnPropertyChanged("lifeTime");
             }
         }
 
-        private float coolDownPercentage_ { get; set; }
-        public float coolDownPercentage
+        private float _coolDownPercentage;
+        public float CoolDownPercentage
         {
-            get { return coolDownPercentage_; }
+            get { return _coolDownPercentage; }
             set
             {
-                coolDownPercentage_ = value;
+                _coolDownPercentage = value;
                 OnPropertyChanged("coolDownPercentage");
             }
         }
 
-        private float lifeTimePercentage_ { get; set; }
-        public float lifeTimePercentage
+        private float _lifeTimePercentage;
+        public float LifeTimePercentage
         {
-            get { return lifeTimePercentage_; }
+            get { return _lifeTimePercentage; }
             set
             {
-                lifeTimePercentage_ = value;
+                _lifeTimePercentage = value;
                 OnPropertyChanged("lifeTimePercentage");
             }
         }
@@ -110,10 +106,9 @@ namespace BDMultiTool.Macros {
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged(string name) {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null) {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
+            var handler = PropertyChanged;
+
+            handler?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

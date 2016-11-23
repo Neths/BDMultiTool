@@ -1,36 +1,35 @@
 ﻿using BDMultiTool.Core;
 using BDMultiTool.Core.Notification;
 using BDMultiTool.Core.PInvoke;
-using BDMultiTool.Macros;
 using BDMultiTool.Persistence;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Navigation;
+using BDMultiTool.Extensions;
+using BDMultiTool.Macros;
 
-namespace BDMultiTool {
+namespace BDMultiTool
+{
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : System.Windows.Application {
-        public const String version = "0.1";
+    public class MyApp : Application
+    {
+        private readonly IWindowAttacher _windowAttacher;
+        private readonly INotifier _notifier;
+        private readonly IServiceProvider _serviceProvider;
+        public const string version = "0.1";
         public static volatile bool appCoreIsInitialized = false;
-        public static volatile WindowAttacher windowAttacher;
-        public static volatile bool minimized;
-        public static volatile Overlay overlay;
 
-        public App() {
+        public static volatile bool minimized;
+
+        public MyApp(IWindowAttacher windowAttacher, INotifier notifier, IServiceProvider serviceProvider)
+        {
+            _windowAttacher = windowAttacher;
+            _notifier = notifier;
+            _serviceProvider = serviceProvider;
+
             if (!Directory.Exists(BDMTConstants.WORKSPACE_NAME)) {
                 Directory.CreateDirectory(BDMTConstants.WORKSPACE_NAME);
 
@@ -42,8 +41,7 @@ namespace BDMultiTool {
 
             minimized = false;
 
-            overlay = new Overlay();
-            windowAttacher = new WindowAttacher(WindowAttacher.getHandleByWindowTitleBeginningWith("Black Desert"), overlay);
+            _windowAttacher.Attach(WindowAttacher.GetHandleByWindowTitleBeginningWith("Sans titre"));
 
             appCoreIsInitialized = true;
 
@@ -67,7 +65,11 @@ namespace BDMultiTool {
 
         protected override void OnStartup(StartupEventArgs e) {
             CustomNotifyIcon.getInstance();
+            _notifier.Notify("Info", "Welcome to BDMT v" + MyApp.version);
+
             base.OnStartup(e);
+
+            var mm = _serviceProvider.GetInstance<IMacroManager>();
         }
 
         public static void exit() {

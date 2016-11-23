@@ -25,19 +25,19 @@ namespace BDMultiTool {
         }
 
         private void deleteButton_Click(object sender, RoutedEventArgs e) {
-            MacroManagerThread.macroManager.removeMacroByName((this.DataContext as MacroItemModel).macroName);
+            MacroManagerThread.macroManager.removeMacroByName((this.DataContext as MacroItemModel).MacroName);
 
         }
 
         private void resetButton_Click(object sender, RoutedEventArgs e) {
-            MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).macroName).resetAll();
+            MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).ResetAll();
             (this.DataContext as MacroItemModel).Paused = true;
             (this.DataContext as MacroItemModel).NotPaused = false;
         }
 
         private void playButton_Click(object sender, RoutedEventArgs e) {
-            MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).macroName).resume();
-            if(!MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).macroName).paused) {
+            MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Resume();
+            if(!MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Paused) {
                 (this.DataContext as MacroItemModel).Paused = false;
                 (this.DataContext as MacroItemModel).NotPaused = true;
             }
@@ -45,8 +45,8 @@ namespace BDMultiTool {
         }
 
         private void pauseButton_Click(object sender, RoutedEventArgs e) {
-            MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).macroName).pause();
-            if(MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).macroName).paused) {
+            MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Pause();
+            if(MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Paused) {
                 (this.DataContext as MacroItemModel).Paused = true;
                 (this.DataContext as MacroItemModel).NotPaused = false;
             }

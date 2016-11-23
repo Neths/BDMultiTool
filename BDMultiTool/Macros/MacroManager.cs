@@ -3,120 +3,161 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
+using BDMultiTool.Core.PInvoke;
 
-namespace BDMultiTool.Macros {
-    public class MacroManager {
-        private static volatile ConcurrentDictionary<String, CycleMacro> macros;
+namespace BDMultiTool.Macros
+{
+    public interface IMacroManager
+    {
+        void showMacroMenu();
+    }
+
+    public class MacroManager : IMacroManager
+    {
+        private readonly IOverlay _overlay;
+        private readonly IWindowAttacher _windowAttacher;
+        private ConcurrentDictionary<String, CycleMacro> macros;
         private MacroGallery macroGallery;
         private MacroAddControl macroAddControl;
-        private MovableUserControl ownParentWindow;
-        private MovableUserControl macroCreateWindow;
+        private UserControl ownParentWindow;
+        private UserControl macroCreateWindow;
 
-        public MacroManager() {
+        public MacroManager(IOverlay overlay, IWindowAttacher windowAttacher)
+        {
+            _overlay = overlay;
+            _windowAttacher = windowAttacher;
             macros = new ConcurrentDictionary<String, CycleMacro>();
             macroGallery = new MacroGallery();
             macroGallery.initialize();
 
             macroAddControl = new MacroAddControl();
 
-            ownParentWindow = App.overlay.addWindowToGrid(macroGallery, "Macros", false);
-            macroCreateWindow = App.overlay.addWindowToGrid(macroAddControl, "Create new macro", false);
-            App.overlay.addMenuItemToMenu("pack://application:,,,/Resources/macroMenuIcon.png", "Macros").Click += macroMenu_Click;
+            ownParentWindow = _overlay.AddWindowToGrid(macroGallery, "Macros", false);
+            macroCreateWindow = _overlay.AddWindowToGrid(macroAddControl, "Create new macro", false);
+
+            _overlay.AddItemMenuToMainMenu("Macros",
+                                        new Image
+                                        {
+                                            Source = new BitmapImage(new Uri("pack://application:,,,/Resources/macroMenuIcon.png"))
+                                        },
+                                        macroMenu_Click);
 
             PersistenceContainer[] savedMacros = PersistenceUnitThread.persistenceUnit.loadContainersByType(typeof(CycleMacro).Name);
-            foreach(PersistenceContainer currentPersistenceContainer in savedMacros) {
+            foreach (PersistenceContainer currentPersistenceContainer in savedMacros)
+            {
                 CycleMacro newMacro = new CycleMacro();
-                newMacro.updateCycleMacroByPersistenceContainer(currentPersistenceContainer);
-                macros.GetOrAdd(newMacro.name, newMacro);
+                newMacro.UpdateCycleMacroByPersistenceContainer(currentPersistenceContainer);
+                macros.GetOrAdd(newMacro.Name, newMacro);
             }
         }
 
-        private void macroMenu_Click(object sender, RoutedEventArgs e) {
+        public void macroMenu_Click(object sender, RoutedEventArgs e)
+        {
             showMacroMenu();
         }
 
-        public void showCreateMacroMenu() {
-            macroCreateWindow.Dispatcher.Invoke((Action)(() => {
+        public void showCreateMacroMenu()
+        {
+            macroCreateWindow.Dispatcher.Invoke((Action)(() =>
+            {
                 macroCreateWindow.Visibility = Visibility.Visible;
             }));
         }
 
-        public void hideCreateMacroMenu() {
-            macroCreateWindow.Dispatcher.Invoke((Action)(() => {
+        public void hideCreateMacroMenu()
+        {
+            macroCreateWindow.Dispatcher.Invoke((Action)(() =>
+            {
                 macroCreateWindow.Visibility = Visibility.Hidden;
             }));
         }
 
-        public void showMacroMenu() {
-            ownParentWindow.Dispatcher.Invoke((Action)(() => {
+        public void showMacroMenu()
+        {
+            ownParentWindow.Dispatcher.Invoke((Action)(() =>
+            {
                 ownParentWindow.Visibility = Visibility.Visible;
             }));
         }
 
-        public void hideMacroMenu() {
-            ownParentWindow.Dispatcher.Invoke((Action)(() => {
+        public void hideMacroMenu()
+        {
+            ownParentWindow.Dispatcher.Invoke((Action)(() =>
+            {
                 ownParentWindow.Visibility = Visibility.Hidden;
             }));
         }
 
-        public void addMacro(CycleMacro macroToAdd) {
-            macroToAdd.pause();
-            macros.GetOrAdd(macroToAdd.name, macroToAdd);
-            macroToAdd.persist();
+        public void addMacro(CycleMacro macroToAdd)
+        {
+            macroToAdd.Pause();
+            macros.GetOrAdd(macroToAdd.Name, macroToAdd);
+            macroToAdd.Persist();
         }
 
-        public void update() {
+        public void update()
+        {
             int tempCount = 0;
             ObservableCollection<MacroItemModel> macroItemModels = new ObservableCollection<MacroItemModel>();
-            foreach (KeyValuePair<String, CycleMacro> currentMacroKeyValuePair in macros) {
+            foreach (KeyValuePair<String, CycleMacro> currentMacroKeyValuePair in macros)
+            {
                 tempCount++;
-                if (currentMacroKeyValuePair.Value.isReady()) {
-                    sendMultipleKeys(currentMacroKeyValuePair.Value.getKeys());
-                    currentMacroKeyValuePair.Value.reset();
-                    currentMacroKeyValuePair.Value.start();
+                if (currentMacroKeyValuePair.Value.IsReady())
+                {
+                    sendMultipleKeys(currentMacroKeyValuePair.Value.GetKeys());
+                    currentMacroKeyValuePair.Value.Reset();
+                    currentMacroKeyValuePair.Value.Start();
                     Thread.Sleep(20);
                 }
-                if (currentMacroKeyValuePair.Value.lifeTimeOver()) {
+                if (currentMacroKeyValuePair.Value.LifeTimeOver())
+                {
                     removeMacro(currentMacroKeyValuePair.Value);
-                } else {
+                }
+                else
+                {
                     MacroItemModel currentMacroItemModel = new MacroItemModel();
-                    currentMacroItemModel.macroName = currentMacroKeyValuePair.Value.name;
-                    currentMacroItemModel.coolDownTime = currentMacroKeyValuePair.Value.getRemainingCoolDownFormatted();
-                    currentMacroItemModel.coolDownPercentage = currentMacroKeyValuePair.Value.getCoolDownPercentage();
-                    currentMacroItemModel.lifeTime = currentMacroKeyValuePair.Value.getRemainingLifeTimeFormatted();
-                    currentMacroItemModel.lifeTimePercentage = currentMacroKeyValuePair.Value.getLifeTimePercentage();
-                    currentMacroItemModel.keyString = currentMacroKeyValuePair.Value.getKeyString();
+                    currentMacroItemModel.MacroName = currentMacroKeyValuePair.Value.Name;
+                    currentMacroItemModel.CoolDownTime = currentMacroKeyValuePair.Value.GetRemainingCoolDownFormatted();
+                    currentMacroItemModel.CoolDownPercentage = currentMacroKeyValuePair.Value.GetCoolDownPercentage();
+                    currentMacroItemModel.LifeTime = currentMacroKeyValuePair.Value.GetRemainingLifeTimeFormatted();
+                    currentMacroItemModel.LifeTimePercentage = currentMacroKeyValuePair.Value.GetLifeTimePercentage();
+                    currentMacroItemModel.KeyString = currentMacroKeyValuePair.Value.GetKeyString();
                     currentMacroItemModel.AddMode = false;
 
-                    if(currentMacroKeyValuePair.Value.paused) {
+                    if (currentMacroKeyValuePair.Value.Paused)
+                    {
                         currentMacroItemModel.Paused = true;
                         currentMacroItemModel.NotPaused = false;
-                    } else {
+                    }
+                    else
+                    {
                         currentMacroItemModel.Paused = false;
                         currentMacroItemModel.NotPaused = true;
                     }
 
                     macroItemModels.Add(currentMacroItemModel);
 
-                    macroGallery.Dispatcher.Invoke((Action)(() => {
+                    macroGallery.Dispatcher.Invoke((Action)(() =>
+                    {
                         bool macroContained = false;
-                        foreach(MacroItemModel currentInnerMacroItemModel in macroGallery.macroItemModels) {
-                            if(currentInnerMacroItemModel.macroName == currentMacroItemModel.macroName) {
-                                currentInnerMacroItemModel.coolDownPercentage = currentMacroItemModel.coolDownPercentage;
-                                currentInnerMacroItemModel.coolDownTime = currentMacroItemModel.coolDownTime;
-                                currentInnerMacroItemModel.lifeTime = currentMacroItemModel.lifeTime;
-                                currentInnerMacroItemModel.lifeTimePercentage = currentMacroItemModel.lifeTimePercentage;
+                        foreach (MacroItemModel currentInnerMacroItemModel in macroGallery.macroItemModels)
+                        {
+                            if (currentInnerMacroItemModel.MacroName == currentMacroItemModel.MacroName)
+                            {
+                                currentInnerMacroItemModel.CoolDownPercentage = currentMacroItemModel.CoolDownPercentage;
+                                currentInnerMacroItemModel.CoolDownTime = currentMacroItemModel.CoolDownTime;
+                                currentInnerMacroItemModel.LifeTime = currentMacroItemModel.LifeTime;
+                                currentInnerMacroItemModel.LifeTimePercentage = currentMacroItemModel.LifeTimePercentage;
                                 macroContained = true;
                                 break;
                             }
                         }
-                        if(!macroContained) {
+                        if (!macroContained)
+                        {
                             macroGallery.addMacro(currentMacroItemModel);
                         }
                     }));
@@ -126,15 +167,19 @@ namespace BDMultiTool.Macros {
 
         }
 
-        public void removeMacro(CycleMacro macro) {
+        public void removeMacro(CycleMacro macro)
+        {
             CycleMacro deletedMacro;
-            while (!macros.TryRemove(macro.name, out deletedMacro)) { }
+            while (!macros.TryRemove(macro.Name, out deletedMacro)) { }
 
-            deletedMacro.deletePersistence();
+            deletedMacro.DeletePersistence();
 
-            macroGallery.Dispatcher.Invoke((Action)(() => {
-                foreach (MacroItemModel currentInnerMacroItemModel in macroGallery.macroItemModels) {
-                    if (currentInnerMacroItemModel.macroName == deletedMacro.name) {
+            macroGallery.Dispatcher.Invoke((Action)(() =>
+            {
+                foreach (MacroItemModel currentInnerMacroItemModel in macroGallery.macroItemModels)
+                {
+                    if (currentInnerMacroItemModel.MacroName == deletedMacro.Name)
+                    {
                         macroGallery.macroItemModels.Remove(currentInnerMacroItemModel);
                         break;
                     }
@@ -143,15 +188,19 @@ namespace BDMultiTool.Macros {
 
         }
 
-        public void removeMacroByName(String name) {
+        public void removeMacroByName(String name)
+        {
             CycleMacro deletedMacro;
             while (!macros.TryRemove(name, out deletedMacro)) { }
 
-            deletedMacro.deletePersistence();
+            deletedMacro.DeletePersistence();
 
-            macroGallery.Dispatcher.Invoke((Action)(() => {
-                foreach (MacroItemModel currentInnerMacroItemModel in macroGallery.macroItemModels) {
-                    if (currentInnerMacroItemModel.macroName == deletedMacro.name) {
+            macroGallery.Dispatcher.Invoke((Action)(() =>
+            {
+                foreach (MacroItemModel currentInnerMacroItemModel in macroGallery.macroItemModels)
+                {
+                    if (currentInnerMacroItemModel.MacroName == deletedMacro.Name)
+                    {
                         macroGallery.macroItemModels.Remove(currentInnerMacroItemModel);
                         break;
                     }
@@ -159,27 +208,35 @@ namespace BDMultiTool.Macros {
             }));
         }
 
-        public CycleMacro getMacroByName(String name) {
-            if(macros.ContainsKey(name)) {
+        public CycleMacro getMacroByName(String name)
+        {
+            if (macros.ContainsKey(name))
+            {
                 CycleMacro receivedMacro;
 
                 while (!macros.TryGetValue(name, out receivedMacro)) { }
                 return receivedMacro;
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
 
-        private void sendMultipleKeys(System.Windows.Forms.Keys[] keys) {
-            foreach(System.Windows.Forms.Keys currentKey in keys) {
-                App.windowAttacher.sendKeypress(currentKey);
+        private void sendMultipleKeys(System.Windows.Forms.Keys[] keys)
+        {
+            foreach (System.Windows.Forms.Keys currentKey in keys)
+            {
+                _windowAttacher.SendKeypress(currentKey);
                 Thread.Sleep(10);
             }
         }
 
-        public KeyValuePair<String, CycleMacro>[] getActiveMacros() {
+        public KeyValuePair<String, CycleMacro>[] getActiveMacros()
+        {
             return macros.ToArray();
         }
-
     }
+
+
 }

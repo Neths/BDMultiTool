@@ -1,92 +1,161 @@
-﻿using BDMultiTool.Core.Settings;
-using BDMultiTool.Macros;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using BDMultiTool.Core.Notification;
+using BDMultiTool.Extensions;
+using BDMultiTool.Macros;
+using BDMultiTool.ViewModels;
+using SimpleInjector;
 
 namespace BDMultiTool {
+
+    public interface IOverlay
+    {
+        bool Topmost { get; set; }
+        void Update(Rect rect);
+        void Show();
+        void Hide();
+        UserControl AddWindowToGrid(UserControl settingsWindow, string settings, bool noSavingFlagb);
+
+        void AddItemMenuToMainMenu(string title, Image image, RoutedEventHandler routedEventHandler);
+    }
     /// <summary>
     /// Interaction logic for Overlay.xaml
     /// </summary>
-    public partial class Overlay : Window {
-        private bool menuVisible;
+    public partial class Overlay : Window, IOverlay
+    {
+        private readonly INotifier _notifier;
+        private readonly Container _serviceProvider;
+        private bool _menuVisible;
+        private readonly UserControl _settingWindowHost;
+        private ObservableCollection<MenuItem> toto = new ObservableCollection<MenuItem>();
 
-        public Overlay() {
-            this.Title = Guid.NewGuid().ToString();
+        public Overlay(ISettingsWindow settingsWindow, INotifier notifier, Container serviceProvider)
+        {
+            _notifier = notifier;
+            _serviceProvider = serviceProvider;
+            Title = Guid.NewGuid().ToString();
             InitializeComponent();
-            this.Background = null;
-            menuVisible = false;
+            Background = null;
+            _menuVisible = false;
+
+            _settingWindowHost = AddWindowToGrid((UserControl)settingsWindow, "Settings", true);
+
+            mainMenu.ItemsSource = toto;
+
+            //_macrosGalleryWindowHost = AddWindowToGrid(macroGallery, "Macros", false);
+            //_macrosWindowHost = AddWindowToGrid(new MacroAddControl(), "Create new macro", false);
+
+            AddItemMenuToMainMenu("Settings", new Image
+            {
+                Source = new BitmapImage(new Uri("pack://application:,,,/Resources/settingsIcon.png"))
+            }, settingsMenu_Click);
+
+            AddItemMenuToMainMenu("Exit", new Image
+            {
+                Source = new BitmapImage(new Uri("pack://application:,,,/Resources/exitIcon.png"))
+            }, exitMenu_Click);
         }
 
-        public MovableUserControl addWindowToGrid(UserControl userControl, String title, bool noSavingFlag) {
-            MovableUserControl currentInnerWindow = new MovableUserControl(RootGrid);
+        private void mainMenu_Click(object sender, RoutedEventArgs e)
+        {
+            if(!_menuVisible) {
+                ((Storyboard)FindResource("SlideIn")).Begin(mainMenu);
+                _menuVisible = true;
+            } else {
+                ((Storyboard)FindResource("SlideOut")).Begin(mainMenu);
+                _menuVisible = false;
+            }
+        }
+
+        private void settingsMenu_Click(object sender, RoutedEventArgs e)
+        {
+            _settingWindowHost.Dispatcher.Invoke(() =>
+            {
+                _settingWindowHost.Visibility = Visibility.Visible;
+            }); ;
+        }
+
+        private void macrosMenu_Click(object sender, RoutedEventArgs e)
+        {
+            //_macrosGalleryWindowHost.Dispatcher.Invoke(() =>
+            //{
+            //    _macrosGalleryWindowHost.Visibility = Visibility.Visible;
+            //});
+
+            //_macrosWindowHost.Dispatcher.Invoke(() =>
+            //{
+            //    _macrosWindowHost.Visibility = Visibility.Visible;
+            //});
+        }
+
+        private void exitMenu_Click(object sender, RoutedEventArgs e)
+        {
+            MyApp.exit();
+        }
+
+        private void RootGrid_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!_menuVisible)
+                return;
+
+            ((Storyboard)FindResource("SlideOut")).Begin(mainMenu);
+            _menuVisible = false;
+        }
+
+        private void customButton_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ((Button)sender).Background = new SolidColorBrush(Color.FromArgb(20, 250, 0, 0));
+        }
+
+        private void customButton_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((Button)sender).Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+        }
+
+        public void Update(Rect rect)
+        {
+            Width = rect.Width - 2;
+            Height = rect.Height;
+
+            Left = rect.X + 1;
+            Top = rect.Y - 1;
+        }
+
+        public UserControl AddWindowToGrid(UserControl userControl, string title, bool noSavingFlag)
+        {
+            var currentInnerWindow = new MovableUserControl(RootGrid);
             currentInnerWindow.setTitle(title);
             currentInnerWindow.setGridContent(userControl);
             currentInnerWindow.Visibility = Visibility.Hidden;
-            if(noSavingFlag) {
+            if (noSavingFlag)
+            {
                 currentInnerWindow.disableSaving();
             }
             RootGrid.Children.Add(currentInnerWindow);
             return currentInnerWindow;
         }
 
-        public MenuItem addMenuItemToMenu(String uri, String header) {
-            MenuItem currentMenuItem = new MenuItem();
-            currentMenuItem.Header = header;
-            System.Windows.Controls.Image image = new System.Windows.Controls.Image();
-            image.Source = new BitmapImage(new Uri(uri));
-            currentMenuItem.Icon = image;
-            mainMenu.Items.Insert(0, currentMenuItem);
-            return currentMenuItem;
+        public void AddItemMenuToMainMenu(string header, Image image, RoutedEventHandler routedEventHandler)
+        {
+            var currentMenuItem = new MenuItem
+            {
+                Header = header,
+                Icon = image
+            };
+
+            currentMenuItem.Click += routedEventHandler;
+
+            toto.Insert(0,currentMenuItem);
         }
-
-        private void mainMenu_Click(object sender, RoutedEventArgs e) {
-            if(!menuVisible) {
-                ((Storyboard)FindResource("SlideIn")).Begin(mainMenu);
-                menuVisible = true;
-            } else {
-                ((Storyboard)FindResource("SlideOut")).Begin(mainMenu);
-                menuVisible = false;
-            }
-
-        }
-
-        private void settingsMenu_Click(object sender, RoutedEventArgs e) {
-            SettingsThread.settings.showSettingsMenu();
-        }
-
-        private void exitMenu_Click(object sender, RoutedEventArgs e) {
-            App.exit();
-        }
-
-        private void RootGrid_MouseDown(object sender, MouseButtonEventArgs e) {
-            if(menuVisible) {
-                ((Storyboard)FindResource("SlideOut")).Begin(mainMenu);
-                menuVisible = false;
-            }
-        }
-
-        private void customButton_MouseEnter(object sender, MouseEventArgs e) {
-            ((Button)sender).Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(20, 250, 0, 0));
-        }
-
-        private void customButton_MouseLeave(object sender, MouseEventArgs e) {
-            ((Button)sender).Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 0, 0, 0));
-        }
-
-
     }
+
+
 }

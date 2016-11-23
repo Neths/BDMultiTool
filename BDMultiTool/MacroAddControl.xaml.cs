@@ -66,18 +66,18 @@ namespace BDMultiTool {
             CycleMacro currentMacro = new CycleMacro();
 
             foreach(BoxKeyboardPair currentBoxPair in listBoxPairs) {
-                currentMacro.addKey(currentBoxPair._Value);
+                currentMacro.AddKey(currentBoxPair._Value);
             }
 
-            currentMacro.name = macroName.Text;
+            currentMacro.Name = macroName.Text;
 
             try {
-                currentMacro.interval = int.Parse(coolDownTime.Text);
+                currentMacro.Interval = int.Parse(coolDownTime.Text);
 
                 if ((bool)disableLifeTimeCheckBox.IsChecked) {
-                    currentMacro.lifetime = -1;
+                    currentMacro.Lifetime = -1;
                 } else {
-                    currentMacro.lifetime = int.Parse(lifeTime.Text);
+                    currentMacro.Lifetime = int.Parse(lifeTime.Text);
                 }
 
                 MacroManagerThread.macroManager.addMacro(currentMacro);

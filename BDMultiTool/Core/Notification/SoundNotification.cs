@@ -1,30 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NAudio.Wave;
+using NVorbis.NAudioSupport;
 
-namespace BDMultiTool.Core.Notification {
-    class SoundNotification {
-        private static NVorbis.NAudioSupport.VorbisWaveReader vorbisReader;
-        private static NAudio.Wave.WaveOut waveOut;
+namespace BDMultiTool.Core.Notification
+{
+    public interface ISoundNotifier
+    {
+        void PlayNotificationSound();
+    }
 
-        public static void playNotificationSound() {
-            vorbisReader = new NVorbis.NAudioSupport.VorbisWaveReader(BDMTConstants.WORKSPACE_PATH + BDMTConstants.NOTIFICATION_SOUND_FILE);
+    public class SoundNotification : ISoundNotifier
+    {
+        private VorbisWaveReader _vorbisReader;
+        private WaveOut _waveOut;
 
-            waveOut = new NAudio.Wave.WaveOut();
-            waveOut.PlaybackStopped += onPlaybackStopped;
-            waveOut.Init(vorbisReader);
-            waveOut.Volume = 0.65f;
-            waveOut.Play();
+        public void PlayNotificationSound()
+        {
+            _vorbisReader = new VorbisWaveReader(BDMTConstants.WORKSPACE_PATH + BDMTConstants.NOTIFICATION_SOUND_FILE);
+
+            _waveOut = new WaveOut();
+            _waveOut.PlaybackStopped += OnPlaybackStopped;
+            _waveOut.Init(_vorbisReader);
+            _waveOut.Volume = 0.65f;
+            _waveOut.Play();
         }
 
-        private static void onPlaybackStopped(object sender, EventArgs e) {
-            waveOut.PlaybackStopped -= onPlaybackStopped;
-            waveOut = null;
+        private void OnPlaybackStopped(object sender, EventArgs e)
+        {
+            _waveOut.PlaybackStopped -= OnPlaybackStopped;
+            _waveOut = null;
 
-            vorbisReader.Dispose();
-            vorbisReader = null;
+            _vorbisReader.Dispose();
+            _vorbisReader = null;
         }
     }
 }

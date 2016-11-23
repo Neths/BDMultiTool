@@ -1,113 +1,112 @@
-﻿using BDMultiTool.Persistence;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
+using BDMultiTool.Persistence;
 
 namespace BDMultiTool.Macros {
     public class CycleMacro {
-        private LinkedList<System.Windows.Forms.Keys> keys;
-        public bool paused { get; set; }
-        public long interval { get; set;}
-        public long lifetime { get; set; }
-        public String name { get; set; }
-        private bool initialized;
-        private Stopwatch stopWatchTotalTime;
-        private Stopwatch stopWatch;
+        private readonly LinkedList<Keys> _keys;
+        public bool Paused { get; set; }
+        public long Interval { get; set;}
+        public long Lifetime { get; set; }
+        public string Name { get; set; }
+        private bool _initialized;
+        private readonly Stopwatch _stopWatchTotalTime;
+        private readonly Stopwatch _stopWatch;
 
-        public CycleMacro(params System.Windows.Forms.Keys[] keys) {
-            this.keys = new LinkedList<System.Windows.Forms.Keys>(keys);
-            name = "N/A";
-            stopWatch = new Stopwatch();
-            stopWatchTotalTime = new Stopwatch();
-            initialized = false;
-            interval = 2000;
-            lifetime = -1;
-            paused = true;
+        public CycleMacro(params Keys[] keys) {
+            _keys = new LinkedList<Keys>(keys);
+            Name = "N/A";
+            _stopWatch = new Stopwatch();
+            _stopWatchTotalTime = new Stopwatch();
+            _initialized = false;
+            Interval = 2000;
+            Lifetime = -1;
+            Paused = true;
         }
 
         public CycleMacro() {
-            keys = new LinkedList<System.Windows.Forms.Keys>();
-            name = "N/A";
-            stopWatch = new Stopwatch();
-            stopWatchTotalTime = new Stopwatch();
-            initialized = false;
-            interval = 2000;
-            lifetime = -1;
-            paused = true;
+            _keys = new LinkedList<Keys>();
+            Name = "N/A";
+            _stopWatch = new Stopwatch();
+            _stopWatchTotalTime = new Stopwatch();
+            _initialized = false;
+            Interval = 2000;
+            Lifetime = -1;
+            Paused = true;
         }
 
-        public void addKey(System.Windows.Forms.Keys key) {
-            this.keys.AddLast(key);
+        public void AddKey(Keys key) {
+            _keys.AddLast(key);
         }
 
-        public void start() {
-            stopWatch.Start();
-            if(!initialized) {
-                initialized = true;
-                if(lifetime > 0) {
-                    stopWatchTotalTime.Start();
+        public void Start() {
+            _stopWatch.Start();
+            if(!_initialized) {
+                _initialized = true;
+                if(Lifetime > 0) {
+                    _stopWatchTotalTime.Start();
                 }
             }
-            paused = false;
+            Paused = false;
         }
 
-        public void pause() {
-            stopWatch.Stop();
-            stopWatchTotalTime.Stop();
-            paused = true;
+        public void Pause() {
+            _stopWatch.Stop();
+            _stopWatchTotalTime.Stop();
+            Paused = true;
         }
 
-        public void resume() {
-            stopWatch.Start();
-            stopWatchTotalTime.Start();
-            paused = false;
+        public void Resume() {
+            _stopWatch.Start();
+            _stopWatchTotalTime.Start();
+            Paused = false;
         }
 
-        public String getKeyString() {
-            StringBuilder stringBuilder = new StringBuilder();
-            bool firstItem = true;
-            foreach(System.Windows.Forms.Keys currentKey in keys) {
+        public string GetKeyString() {
+            var stringBuilder = new StringBuilder();
+            var firstItem = true;
+            foreach(var currentKey in _keys) {
                 if(!firstItem) {
                     stringBuilder.Append(", ");
                 } else {
                     firstItem = false;
                 }
-                stringBuilder.Append(currentKey.ToString());
+                stringBuilder.Append(currentKey);
             }
 
             return stringBuilder.ToString();
         }
 
-        public TimeSpan getRemainingCoolDown() {
-            return TimeSpan.FromMilliseconds(interval - stopWatch.ElapsedMilliseconds);
+        public TimeSpan GetRemainingCoolDown() {
+            return TimeSpan.FromMilliseconds(Interval - _stopWatch.ElapsedMilliseconds);
         }
 
-        public String getRemainingCoolDownFormatted() {
-            return getFormattedTimeSpan(getRemainingCoolDown());
+        public string GetRemainingCoolDownFormatted() {
+            return GetFormattedTimeSpan(GetRemainingCoolDown());
         }
 
-        public TimeSpan getRemainingLifeTime() {
-            if(lifetime > 0) {
-                return TimeSpan.FromMilliseconds(lifetime - stopWatchTotalTime.ElapsedMilliseconds);
-            } else {
-                return new TimeSpan();
+        public TimeSpan GetRemainingLifeTime()
+        {
+            if(Lifetime > 0) {
+                return TimeSpan.FromMilliseconds(Lifetime - _stopWatchTotalTime.ElapsedMilliseconds);
             }
+            return new TimeSpan();
         }
 
-        public String getRemainingLifeTimeFormatted() {
-            if(lifetime < 0) {
+        public string GetRemainingLifeTimeFormatted()
+        {
+            if(Lifetime < 0) {
                 return "";
-            } else {
-                return getFormattedTimeSpan(getRemainingLifeTime());
             }
-            
+            return GetFormattedTimeSpan(GetRemainingLifeTime());
         }
 
-        private String getFormattedTimeSpan(TimeSpan timeSpan) {
-            StringBuilder stringBuilder = new StringBuilder();
+        private string GetFormattedTimeSpan(TimeSpan timeSpan) {
+            var stringBuilder = new StringBuilder();
             if (timeSpan.TotalMinutes >= 60) {
                 stringBuilder.Append(">");
             }
@@ -138,83 +137,76 @@ namespace BDMultiTool.Macros {
             return stringBuilder.ToString();
         }
 
-        public float getLifeTimePercentage() {
-            if (lifetime > 0) {
+        public float GetLifeTimePercentage()
+        {
+            if (Lifetime > 0) {
 
-                return ((float)stopWatchTotalTime.ElapsedMilliseconds/(float)lifetime) * 100f;
-            } else {
-                return 100;
+                return (_stopWatchTotalTime.ElapsedMilliseconds/(float)Lifetime) * 100f;
             }
+            return 100;
         }
 
-        public String getLifeTimePercentageTwoDigitFormat() {
-            return getLifeTimePercentage().ToString("0.00");
+        public float GetCoolDownPercentage() {
+            return (_stopWatch.ElapsedMilliseconds / (float)Interval) * 100f;
         }
 
-        public float getCoolDownPercentage() {
-            return ((float)stopWatch.ElapsedMilliseconds / (float)interval) * 100f;
-        }
-
-        public String getCoolDownPercentageTwoDigitFormat() {
-            return getCoolDownPercentage().ToString("0.00");
-        }
-
-        public bool lifeTimeOver() {
-            if(lifetime > 0) {
-                return stopWatchTotalTime.ElapsedMilliseconds >= lifetime;
-            } else {
-                return false;
+        public bool LifeTimeOver()
+        {
+            if(Lifetime > 0) {
+                return _stopWatchTotalTime.ElapsedMilliseconds >= Lifetime;
             }
+            return false;
         }
 
-        public bool isReady() {
-            if(stopWatch.ElapsedMilliseconds >= interval) {
+        public bool IsReady()
+        {
+            if(_stopWatch.ElapsedMilliseconds >= Interval) {
                 return true;
-            } else {
-                return false;
             }
+            return false;
         }
 
-        public void reset() {
-            stopWatch.Reset();
-            paused = true;
+        public void Reset() {
+            _stopWatch.Reset();
+            Paused = true;
         }
 
-        public void resetAll() {
-            stopWatchTotalTime.Reset();
-            reset();
+        public void ResetAll() {
+            _stopWatchTotalTime.Reset();
+            Reset();
         }
 
-        public System.Windows.Forms.Keys[] getKeys() {
-            return keys.ToArray<System.Windows.Forms.Keys>();
+        public Keys[] GetKeys() {
+            return _keys.ToArray();
         }
 
-        public void updateCycleMacroByPersistenceContainer(PersistenceContainer temporaryPersistenceContainer) {
+        public void UpdateCycleMacroByPersistenceContainer(PersistenceContainer temporaryPersistenceContainer) {
             if (temporaryPersistenceContainer != null) {
-                this.name = temporaryPersistenceContainer.content.Element("name").Value;
-                this.interval = long.Parse(temporaryPersistenceContainer.content.Element("interval").Value);
-                this.lifetime = long.Parse(temporaryPersistenceContainer.content.Element("lifetime").Value);
-                addKeysByString(temporaryPersistenceContainer.content.Element("keys").Value);
+                Name = temporaryPersistenceContainer.content.Element("name").Value;
+                Interval = long.Parse(temporaryPersistenceContainer.content.Element("interval").Value);
+                Lifetime = long.Parse(temporaryPersistenceContainer.content.Element("lifetime").Value);
+                AddKeysByString(temporaryPersistenceContainer.content.Element("keys").Value);
             }
         }
 
-        public void persist() {
-            PersistenceUnitThread.persistenceUnit.addToPersistenceBuffer(PersistenceUnit.createPersistenceContainer(this.name + this.GetType().Name,
-                                                                                                                    this.GetType().Name,
-                                                                                                                    new String[][] {
-                                                                                                                        new String[] { "interval", interval.ToString() },
-                                                                                                                        new String[] { "lifetime", lifetime.ToString() },
-                                                                                                                        new String[] { "name", this.name },
-                                                                                                                        new String[] { "keys", getStringFromKeys() }
+        public void Persist() {
+            PersistenceUnitThread.persistenceUnit.addToPersistenceBuffer(PersistenceUnit.createPersistenceContainer(Name + GetType().Name,
+                                                                                                                    GetType().Name,
+                                                                                                                    new[]
+                                                                                                                    {
+                                                                                                                        new[] { "interval", Interval.ToString() },
+                                                                                                                        new[] { "lifetime", Lifetime.ToString() },
+                                                                                                                        new[] { "name", Name },
+                                                                                                                        new[] { "keys", GetStringFromKeys() }
                                                                                                                     }));
 
         }
 
-        private String getStringFromKeys() {
-            StringBuilder stringBuilder = new StringBuilder();
-            bool firstElement = true;
+        private string GetStringFromKeys() {
+            var stringBuilder = new StringBuilder();
+            var firstElement = true;
 
-            foreach(System.Windows.Forms.Keys key in keys) {
+            foreach(var key in _keys) {
                 if(!firstElement) {
                     stringBuilder.Append(";");
                 } else {
@@ -226,19 +218,19 @@ namespace BDMultiTool.Macros {
             return stringBuilder.ToString();
         }
 
-        private void addKeysByString(String stringKeys) {
-            String[] separatedKeys = stringKeys.Split(';');
+        private void AddKeysByString(string stringKeys) {
+            var separatedKeys = stringKeys.Split(';');
 
-            foreach(String currentKey in separatedKeys) {
+            foreach(var currentKey in separatedKeys) {
                 if (currentKey != "" && currentKey.Length > 0) {
-                    keys.AddLast((System.Windows.Forms.Keys)int.Parse(currentKey));
+                    _keys.AddLast((Keys)int.Parse(currentKey));
                 }
 
             }
         }
 
-        public void deletePersistence() {
-            PersistenceUnitThread.persistenceUnit.deleteByKy(this.name + this.GetType().Name);
+        public void DeletePersistence() {
+            PersistenceUnitThread.persistenceUnit.deleteByKy(Name + GetType().Name);
         }
     }
 }
