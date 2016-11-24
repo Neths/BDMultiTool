@@ -8,6 +8,7 @@
         Title="Overlay" Height="720" Width="1280" WindowStyle="None" Background="#02000000" Foreground="{x:Null}" ShowInTaskbar="False" ResizeMode="NoResize" AllowsTransparency="True">
 
     <Window.Resources>
+        <CollectionViewSource Source="{Binding ElementName=UI, Path=Windows}" x:Key="YourMenuItems"/>
 
         <Storyboard x:Key="SlideIn" >
             <DoubleAnimation  Storyboard.TargetProperty="Width" From="0" To="150" Duration="0:0:.3" />
@@ -118,13 +119,37 @@
         </Button>
         <Menu x:Name="mainMenu" Margin="0,0,0,119" BorderBrush="#FFF93C40" BorderThickness="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="0" Opacity="0.9">
             <Menu.Triggers>
-                
+
             </Menu.Triggers>
             <Menu.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel Orientation="Vertical"/>
                 </ItemsPanelTemplate>
             </Menu.ItemsPanel>
+
+            <Menu.ItemsSource>
+                <CompositeCollection>
+                    <CollectionContainer Collection="{Binding Source={StaticResource YourMenuItems}}" />
+                    <MenuItem x:Name="macrosMenu" Header="Macros" Click="macrosMenu_Click">
+                        <MenuItem.Icon>
+                            <Image Source="Resources/macroMenuIcon.png"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem x:Name="settingsMenu" Header="Settings" Click="settingsMenu_Click">
+                        <MenuItem.Icon>
+                            <Image Source="Resources/settingsIcon.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem x:Name="exitMenu" Header="Exit" Click="exitMenu_Click">
+                        <MenuItem.Icon>
+                            <Image Source="Resources/exitIcon.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </CompositeCollection>
+            </Menu.ItemsSource>
+
+
 
             <!--<MenuItem x:Name="macrosMenu" Header="Macros" Click="macrosMenu_Click">
                 <MenuItem.Icon>

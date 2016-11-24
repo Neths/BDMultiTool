@@ -23,9 +23,15 @@ namespace BDMultiTool {
         void Show();
         void Hide();
         UserControl AddWindowToGrid(UserControl settingsWindow, string settings, bool noSavingFlagb);
-
-        void AddItemMenuToMainMenu(string title, Image image, RoutedEventHandler routedEventHandler);
     }
+
+    public class MyMenuItem
+    {
+        public string Title { get; set; }
+        public Image Image { get; set; }
+        public RoutedEventHandler OnClick { get; set; }
+    }
+
     /// <summary>
     /// Interaction logic for Overlay.xaml
     /// </summary>
@@ -35,7 +41,16 @@ namespace BDMultiTool {
         private readonly Container _serviceProvider;
         private bool _menuVisible;
         private readonly UserControl _settingWindowHost;
-        private ObservableCollection<MenuItem> toto = new ObservableCollection<MenuItem>();
+        private readonly UserControl _macrosGalleryWindowHost;
+        private readonly UserControl _macrosWindowHost;
+
+        private ObservableCollection<MyMenuItem> _myMenuItems = new ObservableCollection<MyMenuItem>();
+
+        public ObservableCollection<MyMenuItem> MyMenuItems
+        {
+            get { return _myMenuItems; }
+            set { _myMenuItems = value; }
+        }
 
         public Overlay(ISettingsWindow settingsWindow, INotifier notifier, Container serviceProvider)
         {
@@ -48,20 +63,12 @@ namespace BDMultiTool {
 
             _settingWindowHost = AddWindowToGrid((UserControl)settingsWindow, "Settings", true);
 
-            mainMenu.ItemsSource = toto;
+            //mainMenu.ItemsSource = toto;
+            var macroGallery = new MacroGallery();
+            macroGallery.initialize();
 
-            //_macrosGalleryWindowHost = AddWindowToGrid(macroGallery, "Macros", false);
-            //_macrosWindowHost = AddWindowToGrid(new MacroAddControl(), "Create new macro", false);
-
-            AddItemMenuToMainMenu("Settings", new Image
-            {
-                Source = new BitmapImage(new Uri("pack://application:,,,/Resources/settingsIcon.png"))
-            }, settingsMenu_Click);
-
-            AddItemMenuToMainMenu("Exit", new Image
-            {
-                Source = new BitmapImage(new Uri("pack://application:,,,/Resources/exitIcon.png"))
-            }, exitMenu_Click);
+            _macrosGalleryWindowHost = AddWindowToGrid(macroGallery, "Macros", false);
+            _macrosWindowHost = AddWindowToGrid(new MacroAddControl(), "Create new macro", false);
         }
 
         private void mainMenu_Click(object sender, RoutedEventArgs e)
@@ -85,15 +92,15 @@ namespace BDMultiTool {
 
         private void macrosMenu_Click(object sender, RoutedEventArgs e)
         {
-            //_macrosGalleryWindowHost.Dispatcher.Invoke(() =>
-            //{
-            //    _macrosGalleryWindowHost.Visibility = Visibility.Visible;
-            //});
+            _macrosGalleryWindowHost.Dispatcher.Invoke(() =>
+            {
+                _macrosGalleryWindowHost.Visibility = Visibility.Visible;
+            });
 
-            //_macrosWindowHost.Dispatcher.Invoke(() =>
-            //{
-            //    _macrosWindowHost.Visibility = Visibility.Visible;
-            //});
+            _macrosWindowHost.Dispatcher.Invoke(() =>
+            {
+                _macrosWindowHost.Visibility = Visibility.Visible;
+            });
         }
 
         private void exitMenu_Click(object sender, RoutedEventArgs e)
@@ -141,19 +148,6 @@ namespace BDMultiTool {
             }
             RootGrid.Children.Add(currentInnerWindow);
             return currentInnerWindow;
-        }
-
-        public void AddItemMenuToMainMenu(string header, Image image, RoutedEventHandler routedEventHandler)
-        {
-            var currentMenuItem = new MenuItem
-            {
-                Header = header,
-                Icon = image
-            };
-
-            currentMenuItem.Click += routedEventHandler;
-
-            toto.Insert(0,currentMenuItem);
         }
     }
 
