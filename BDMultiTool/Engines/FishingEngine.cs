@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
+using Point = System.Drawing.Point;
 
 namespace BDMultiTool.Engines
 {
@@ -14,6 +16,26 @@ namespace BDMultiTool.Engines
         private readonly IInputSender _inputSender;
         private bool _running = false;
         private Thread _thread;
+
+        private readonly Dictionary<int,Rect> _shortcutsArea = new Dictionary<int, Rect>()
+        {
+            { 1, new Rect { X = 10, Y = 10, Width = 10, Height = 10} },
+            { 2, new Rect { X = 10, Y = 10, Width = 10, Height = 10} },
+            { 3, new Rect { X = 10, Y = 10, Width = 10, Height = 10} },
+            { 4, new Rect { X = 10, Y = 10, Width = 10, Height = 10} },
+            { 5, new Rect { X = 10, Y = 10, Width = 10, Height = 10} }
+        };
+
+        private readonly List<Color> _existingColorFilter = new List<Color>
+        {
+            Color.AliceBlue,
+            Color.AliceBlue,
+            Color.Aqua
+        };
+
+        private Point cancelLootButtonPosition = new Point(10,10);
+
+        private Image relicImage = null;
 
         public FishingEngine(IRegonizeArea regonizeArea, IInputSender inputSender)
         {
@@ -134,7 +156,7 @@ namespace BDMultiTool.Engines
                 Height = refRect.Height
             };
 
-            ResolveMiniGame(fishingMiniGameArea, SolveFishingMiniGame_Callback);
+            SolveMiniGame(fishingMiniGameArea, SolveFishingMiniGame_Callback);
         }
 
         private void SolveFishingMiniGame_Callback(object sender, KeysEventArgs args)
@@ -162,25 +184,116 @@ namespace BDMultiTool.Engines
         }
 
 
-        private void ResolveMiniGame(Rect fishingMiniGameArea, EventHandler<KeysEventArgs> fishingStep4Callback)
+        private void SolveMiniGame(Rect fishingMiniGameArea, EventHandler<KeysEventArgs> fishingStep4Callback)
+        {
+            var colorFilter = FindColorFilter(fishingMiniGameArea);
+
+            var orientedTriangles = GetTriangles(fishingMiniGameArea, colorFilter);
+
+            var keys = orientedTriangles.Select(GetKeyFromOrientedTriangle).ToList();
+
+            fishingStep4Callback(this,new KeysEventArgs(keys));
+        }
+
+        private Keys GetKeyFromOrientedTriangle(OrientedTriangle orientedTriangle)
+        {
+            throw new NotImplementedException();
+        }
+
+        private IEnumerable<OrientedTriangle> GetTriangles(Rect fishingMiniGameArea, Color colorFilter)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Color FindColorFilter(Rect fishingMiniGameArea)
         {
             throw new NotImplementedException();
         }
 
         private void Looting(bool onlyRelic, EventHandler<EventArgs> waitLootingCallback)
         {
-            throw new NotImplementedException();
+            if (!onlyRelic)
+            {
+                Debug.Write("All Looting");
+                _inputSender.SendKeys(Keys.R);
+                Thread.Sleep(2000);
+            }
+            else
+            {
+                var areas = _regonizeArea.GetAreasForImage(relicImage);
+                foreach (var area in areas)
+                {
+                    _inputSender.MouseRightClickTo(new Point(Convert.ToInt32(area.X + area.Width % 2), Convert.ToInt32(area.Y + area.Height % 2)));
+                    Thread.Sleep(1000);
+                }
+
+                _inputSender.MouseLeftClickTo(cancelLootButtonPosition);
+                Thread.Sleep(1000);
+            }
+
+            waitLootingCallback(this, new EventArgs());
         }
 
         private void SwitchRod(EventHandler<EventArgs> switchFishingRodCallback)
         {
-            throw new NotImplementedException();
+            for (var i = 0; i < 5; i++)
+            {
+                if (CheckDurabilityShortcut(i))
+                {
+                    Debug.Write($"Switch to fishing rod in {i} shortcut");
+                    _inputSender.SendKeys(GetShortcutKey(i));
+                }
+            }
+
+            Debug.Write("haven't fishing rod with durability ==> exit fishing macro");
+            _running = false;
+        }
+
+        private bool CheckDurabilityShortcut(int i)
+        {
+            return _regonizeArea.GetColorArea(_shortcutsArea[i]) == Color.Red;
+        }
+
+        private Keys GetShortcutKey(int i)
+        {
+            switch (i)
+            {
+                case 1:
+                    return Keys.Oem1;
+                case 2:
+                    return Keys.Oem2;
+                case 3:
+                    return Keys.Oem3;
+                case 4:
+                    return Keys.Oem4;
+                case 5:
+                    return Keys.Oem5;
+            }
+
+            return Keys.None;
         }
 
         private bool HaveUsefullFishingRod()
         {
-            throw new NotImplementedException();
+            return MainWeaponDurabilityShortcut();
         }
+
+        private bool MainWeaponDurabilityShortcut()
+        {
+            var mainWeaponDurabilityShortcutArea = new Rect
+            {
+                X = 10,
+                Y = 10,
+                Width = 10,
+                Height = 10
+            };
+
+            return _regonizeArea.GetColorArea(mainWeaponDurabilityShortcutArea) == Color.Red;
+        }
+    }
+
+    public class OrientedTriangle
+    {
     }
 
     public class KeysEventArgs : EventArgs

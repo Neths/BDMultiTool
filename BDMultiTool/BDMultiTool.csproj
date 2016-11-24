@@ -99,6 +99,7 @@
     <Compile Include="Engines\IInputSender.cs" />
     <Compile Include="Engines\IRecognizeChar.cs" />
     <Compile Include="Engines\IRegonizeArea.cs" />
+    <Compile Include="Engines\RectEventArgs.cs" />
     <Compile Include="Fishing\FishingLog.xaml.cs">
       <DependentUpon>FishingLog.xaml</DependentUpon>
     </Compile>
