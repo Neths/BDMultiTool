@@ -6,8 +6,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Windows;
-using BDMultiTool.Extensions;
-using BDMultiTool.Macros;
 
 namespace BDMultiTool
 {
@@ -18,21 +16,18 @@ namespace BDMultiTool
     {
         private readonly IWindowAttacher _windowAttacher;
         private readonly INotifier _notifier;
-        private readonly IServiceProvider _serviceProvider;
         public const string version = "0.1";
         public static volatile bool appCoreIsInitialized = false;
 
         public static volatile bool minimized;
 
-        public MyApp(IWindowAttacher windowAttacher, INotifier notifier, IServiceProvider serviceProvider)
+        public MyApp(IWindowAttacher windowAttacher, INotifier notifier)
         {
             _windowAttacher = windowAttacher;
             _notifier = notifier;
-            _serviceProvider = serviceProvider;
 
             if (!Directory.Exists(BDMTConstants.WORKSPACE_NAME)) {
                 Directory.CreateDirectory(BDMTConstants.WORKSPACE_NAME);
-
             }
 
             if( !File.Exists(BDMTConstants.WORKSPACE_PATH + BDMTConstants.NOTIFICATION_SOUND_FILE)) {
@@ -68,8 +63,6 @@ namespace BDMultiTool
             _notifier.Notify("Info", "Welcome to BDMT v" + MyApp.version);
 
             base.OnStartup(e);
-
-            var mm = _serviceProvider.GetInstance<IMacroManager>();
         }
 
         public static void exit() {

@@ -3,13 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:BDMultiTool"
         mc:Ignorable="d"
         Title="Overlay" Height="720" Width="1280" WindowStyle="None" Background="#02000000" Foreground="{x:Null}" ShowInTaskbar="False" ResizeMode="NoResize" AllowsTransparency="True">
 
     <Window.Resources>
-        <CollectionViewSource Source="{Binding ElementName=UI, Path=Windows}" x:Key="YourMenuItems"/>
-
         <Storyboard x:Key="SlideIn" >
             <DoubleAnimation  Storyboard.TargetProperty="Width" From="0" To="150" Duration="0:0:.3" />
             <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:.6" />
@@ -32,141 +29,43 @@
             </Setter>
         </Style>
 
-        <Style x:Key="ScrollThumbs" TargetType="{x:Type Thumb}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Thumb}">
-                        <Grid x:Name="Grid">
-                            <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto" Fill="Transparent" />
-                            <Border x:Name="Rectangle1" CornerRadius="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto"  Background="{TemplateBinding Background}" />
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="Tag" Value="Horizontal">
-                                <Setter TargetName="Rectangle1" Property="Width" Value="Auto" />
-                                <Setter TargetName="Rectangle1" Property="Height" Value="7" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!--ScrollBars-->
-        <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
-            <Setter Property="Stylus.IsFlicksEnabled" Value="false" />
-            <Setter Property="Foreground" Value="LightGray" />
-            <Setter Property="Background" Value="DarkGray" />
-            <Setter Property="Width" Value="10" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ScrollBar}">
-                        <Grid x:Name="GridRoot" Width="19" Background="{TemplateBinding Background}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="0.00001*" />
-                            </Grid.RowDefinitions>
-
-                            <Track x:Name="PART_Track" Grid.Row="0" IsDirectionReversed="true" Focusable="false">
-                                <Track.Thumb>
-                                    <Thumb x:Name="Thumb" Background="{TemplateBinding Foreground}" Style="{DynamicResource ScrollThumbs}" />
-                                </Track.Thumb>
-                                <Track.IncreaseRepeatButton>
-                                    <RepeatButton x:Name="PageUp" Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="false" />
-                                </Track.IncreaseRepeatButton>
-                                <Track.DecreaseRepeatButton>
-                                    <RepeatButton x:Name="PageDown" Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="false" />
-                                </Track.DecreaseRepeatButton>
-                            </Track>
-                        </Grid>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger SourceName="Thumb" Property="IsMouseOver" Value="true">
-                                <Setter Value="{DynamicResource ButtonSelectBrush}" TargetName="Thumb" Property="Background" />
-                            </Trigger>
-                            <Trigger SourceName="Thumb" Property="IsDragging" Value="true">
-                                <Setter Value="{DynamicResource DarkBrush}" TargetName="Thumb" Property="Background" />
-                            </Trigger>
-
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter TargetName="Thumb" Property="Visibility" Value="Collapsed" />
-                            </Trigger>
-                            <Trigger Property="Orientation" Value="Horizontal">
-                                <Setter TargetName="GridRoot" Property="LayoutTransform">
-                                    <Setter.Value>
-                                        <RotateTransform Angle="-90" />
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter TargetName="PART_Track" Property="LayoutTransform">
-                                    <Setter.Value>
-                                        <RotateTransform Angle="-90" />
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Width" Value="Auto" />
-                                <Setter Property="Height" Value="12" />
-                                <Setter TargetName="Thumb" Property="Tag" Value="Horizontal" />
-                                <Setter TargetName="PageDown" Property="Command" Value="ScrollBar.PageLeftCommand" />
-                                <Setter TargetName="PageUp" Property="Command" Value="ScrollBar.PageRightCommand" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Window.Resources>
 
     <Grid x:Name="RootGrid" MouseDown="RootGrid_MouseDown">
-        <Button x:Name="mainMenuButton" Margin="0,0,48,66" Style="{StaticResource NoDefaultMouseOver}" MouseEnter="customButton_MouseEnter" MouseLeave="customButton_MouseLeave"  BorderBrush="{x:Null}" Background="{x:Null}" HorizontalAlignment="Right" Width="38" Height="38" VerticalAlignment="Bottom" Click="mainMenu_Click">
+        <Button x:Name="MainMenuButton" Margin="0,0,48,66" Style="{StaticResource NoDefaultMouseOver}" MouseEnter="customButton_MouseEnter" MouseLeave="customButton_MouseLeave"  BorderBrush="{x:Null}" Background="{x:Null}" HorizontalAlignment="Right" Width="38" Height="38" VerticalAlignment="Bottom" Click="mainMenu_Click">
             <Image Width="32" Height="32" Source="Resources/bdmtIcon.png" />
         </Button>
-        <Menu x:Name="mainMenu" Margin="0,0,0,119" BorderBrush="#FFF93C40" BorderThickness="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="0" Opacity="0.9">
-            <Menu.Triggers>
 
-            </Menu.Triggers>
+        <Menu x:Name="MainMenu" 
+              Margin="0,0,0,119" 
+              BorderBrush="#FFF93C40" 
+              BorderThickness="1" 
+              VerticalAlignment="Bottom" 
+              HorizontalAlignment="Right" 
+              Width="0" 
+              Opacity="0.9" >
             <Menu.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel Orientation="Vertical"/>
                 </ItemsPanelTemplate>
             </Menu.ItemsPanel>
 
-            <Menu.ItemsSource>
-                <CompositeCollection>
-                    <CollectionContainer Collection="{Binding Source={StaticResource YourMenuItems}}" />
-                    <MenuItem x:Name="macrosMenu" Header="Macros" Click="macrosMenu_Click">
-                        <MenuItem.Icon>
-                            <Image Source="Resources/macroMenuIcon.png"></Image>
-                        </MenuItem.Icon>
-                    </MenuItem>
-
-                    <MenuItem x:Name="settingsMenu" Header="Settings" Click="settingsMenu_Click">
-                        <MenuItem.Icon>
-                            <Image Source="Resources/settingsIcon.png"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem x:Name="exitMenu" Header="Exit" Click="exitMenu_Click">
-                        <MenuItem.Icon>
-                            <Image Source="Resources/exitIcon.png"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                </CompositeCollection>
-            </Menu.ItemsSource>
-
-
-
-            <!--<MenuItem x:Name="macrosMenu" Header="Macros" Click="macrosMenu_Click">
+            <MenuItem x:Name="MacrosMenu" Header="Macros" Click="macrosMenu_Click">
                 <MenuItem.Icon>
                     <Image Source="Resources/macroMenuIcon.png"></Image>
                 </MenuItem.Icon>
             </MenuItem>
-            
-            <MenuItem x:Name="settingsMenu" Header="Settings" Click="settingsMenu_Click">
+
+            <MenuItem x:Name="SettingsMenu" Header="Settings" Click="settingsMenu_Click">
                 <MenuItem.Icon>
                     <Image Source="Resources/settingsIcon.png"/>
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem x:Name="exitMenu" Header="Exit" Click="exitMenu_Click">
+            <MenuItem x:Name="ExitMenu" Header="Exit" Click="exitMenu_Click">
                 <MenuItem.Icon>
                     <Image Source="Resources/exitIcon.png"/>
                 </MenuItem.Icon>
-            </MenuItem>-->
+            </MenuItem>
         </Menu>
 
     </Grid>

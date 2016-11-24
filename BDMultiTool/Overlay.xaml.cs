@@ -1,18 +1,10 @@
 ﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using BDMultiTool.Core.Notification;
-using BDMultiTool.Extensions;
-using BDMultiTool.Macros;
-using BDMultiTool.ViewModels;
-using SimpleInjector;
 
 namespace BDMultiTool {
 
@@ -25,37 +17,21 @@ namespace BDMultiTool {
         UserControl AddWindowToGrid(UserControl settingsWindow, string settings, bool noSavingFlagb);
     }
 
-    public class MyMenuItem
-    {
-        public string Title { get; set; }
-        public Image Image { get; set; }
-        public RoutedEventHandler OnClick { get; set; }
-    }
-
     /// <summary>
     /// Interaction logic for Overlay.xaml
     /// </summary>
     public partial class Overlay : Window, IOverlay
     {
         private readonly INotifier _notifier;
-        private readonly Container _serviceProvider;
         private bool _menuVisible;
         private readonly UserControl _settingWindowHost;
         private readonly UserControl _macrosGalleryWindowHost;
         private readonly UserControl _macrosWindowHost;
 
-        private ObservableCollection<MyMenuItem> _myMenuItems = new ObservableCollection<MyMenuItem>();
 
-        public ObservableCollection<MyMenuItem> MyMenuItems
-        {
-            get { return _myMenuItems; }
-            set { _myMenuItems = value; }
-        }
-
-        public Overlay(ISettingsWindow settingsWindow, INotifier notifier, Container serviceProvider)
+        public Overlay(ISettingsWindow settingsWindow, INotifier notifier)
         {
             _notifier = notifier;
-            _serviceProvider = serviceProvider;
             Title = Guid.NewGuid().ToString();
             InitializeComponent();
             Background = null;
@@ -74,10 +50,10 @@ namespace BDMultiTool {
         private void mainMenu_Click(object sender, RoutedEventArgs e)
         {
             if(!_menuVisible) {
-                ((Storyboard)FindResource("SlideIn")).Begin(mainMenu);
+                ((Storyboard)FindResource("SlideIn")).Begin(MainMenu);
                 _menuVisible = true;
             } else {
-                ((Storyboard)FindResource("SlideOut")).Begin(mainMenu);
+                ((Storyboard)FindResource("SlideOut")).Begin(MainMenu);
                 _menuVisible = false;
             }
         }
@@ -113,7 +89,7 @@ namespace BDMultiTool {
             if (!_menuVisible)
                 return;
 
-            ((Storyboard)FindResource("SlideOut")).Begin(mainMenu);
+            ((Storyboard)FindResource("SlideOut")).Begin(MainMenu);
             _menuVisible = false;
         }
 
@@ -150,6 +126,4 @@ namespace BDMultiTool {
             return currentInnerWindow;
         }
     }
-
-
 }

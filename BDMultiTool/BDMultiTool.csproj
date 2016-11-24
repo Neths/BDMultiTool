@@ -94,14 +94,21 @@
     </ApplicationDefinition>
     <Compile Include="Core\Notification\SoundNotification.cs" />
     <Compile Include="Core\Persistence\XmlUtilities.cs" />
-    <Compile Include="Extensions\IServiceProviderExtensions.cs" />
-    <Compile Include="MacroAddControl.xaml.cs">
+    <Compile Include="Engines\FishingEngine.cs" />
+    <Compile Include="Engines\IEngine.cs" />
+    <Compile Include="Engines\IInputSender.cs" />
+    <Compile Include="Engines\IRecognizeChar.cs" />
+    <Compile Include="Engines\IRegonizeArea.cs" />
+    <Compile Include="Fishing\FishingLog.xaml.cs">
+      <DependentUpon>FishingLog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Macros\MacroAddControl.xaml.cs">
       <DependentUpon>MacroAddControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MacroGallery.xaml.cs">
+    <Compile Include="Macros\MacroGallery.xaml.cs">
       <DependentUpon>MacroGallery.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MacroItem.xaml.cs">
+    <Compile Include="Macros\MacroItem.xaml.cs">
       <DependentUpon>MacroItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Macros\CycleMacro.cs" />
@@ -137,16 +144,19 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewModels\OverlayViewModel.cs" />
-    <Page Include="MacroAddControl.xaml">
+    <Page Include="Fishing\FishingLog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MacroGallery.xaml">
+    <Page Include="Macros\MacroAddControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MacroItem.xaml">
+    <Page Include="Macros\MacroGallery.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Macros\MacroItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -226,6 +236,7 @@
     <Content Include="Libraries\NVorbis.NAudioSupport.dll" />
     <Resource Include="Resources\resizeIcon.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

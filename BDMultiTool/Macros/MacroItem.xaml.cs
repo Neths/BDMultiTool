@@ -1,21 +1,9 @@
-﻿using BDMultiTool.Macros;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
-namespace BDMultiTool {
+namespace BDMultiTool.Macros {
     /// <summary>
     /// Interaction logic for MacroItem.xaml
     /// </summary>
@@ -54,18 +42,18 @@ namespace BDMultiTool {
         }
 
         private void customButton_MouseEnter(object sender, MouseEventArgs e) {
-            ((Button)sender).Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(80, 230, 230, 230));
+            ((Button)sender).Background = new SolidColorBrush(Color.FromArgb(80, 230, 230, 230));
         }
 
         private void customButton_MouseLeave(object sender, MouseEventArgs e) {
-            ((Button)sender).Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 0, 0, 0));
+            ((Button)sender).Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
         }
 
         private void addModeBackground_MouseUp(object sender, MouseButtonEventArgs e) {
-            MacroManagerThread.macroManager.showCreateMacroMenu();
+            //MacroManagerThread.macroManager.showCreateMacroMenu();
         }
 
-        public void addModeActive(bool setActive) {
+        public void AddModeActive(bool setActive) {
             if(setActive) {
                 addModeBackground.Visibility = Visibility.Visible;
                 addModeForeground.Visibility = Visibility.Visible;
