@@ -186,13 +186,27 @@ namespace BDMultiTool.Engines
 
         private void SolveMiniGame(Rect fishingMiniGameArea, EventHandler<KeysEventArgs> fishingStep4Callback)
         {
-            var colorFilter = FindColorFilter(fishingMiniGameArea);
+            var startPointOfTimeGauge = FindTimeGauge(fishingMiniGameArea);
 
-            var orientedTriangles = GetTriangles(fishingMiniGameArea, colorFilter);
+            var triangleAreas = GetTriangleArea(startPointOfTimeGauge).ToList();
+
+            var colorFilter = GetColorNoise(triangleAreas.First());
+
+            var orientedTriangles = CalculateOrientation(triangleAreas, colorFilter);
 
             var keys = orientedTriangles.Select(GetKeyFromOrientedTriangle).ToList();
 
             fishingStep4Callback(this,new KeysEventArgs(keys));
+        }
+
+        private IEnumerable<Rect> GetTriangleArea(Point startPointOfTimeGauge)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Point FindTimeGauge(Rect fishingMiniGameArea)
+        {
+            throw new NotImplementedException();
         }
 
         private Keys GetKeyFromOrientedTriangle(OrientedTriangle orientedTriangle)
@@ -200,12 +214,12 @@ namespace BDMultiTool.Engines
             throw new NotImplementedException();
         }
 
-        private IEnumerable<OrientedTriangle> GetTriangles(Rect fishingMiniGameArea, Color colorFilter)
+        private IEnumerable<OrientedTriangle> CalculateOrientation(IEnumerable<Rect> triangleAreas , Color colorFilter)
         {
             throw new NotImplementedException();
         }
 
-        private Color FindColorFilter(Rect fishingMiniGameArea)
+        private Color GetColorNoise(Rect triangleArea)
         {
             throw new NotImplementedException();
         }
