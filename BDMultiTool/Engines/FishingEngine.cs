@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
+using BDMultiTool.Core;
 using Point = System.Drawing.Point;
 
 namespace BDMultiTool.Engines
@@ -17,7 +18,7 @@ namespace BDMultiTool.Engines
         private bool _running = false;
         private Thread _thread;
 
-        private readonly Dictionary<int,Rect> _shortcutsArea = new Dictionary<int, Rect>()
+        private readonly Dictionary<int,Rect> _shortcutsArea = new Dictionary<int, Rect>
         {
             { 1, new Rect { X = 10, Y = 10, Width = 10, Height = 10} },
             { 2, new Rect { X = 10, Y = 10, Width = 10, Height = 10} },
@@ -26,16 +27,9 @@ namespace BDMultiTool.Engines
             { 5, new Rect { X = 10, Y = 10, Width = 10, Height = 10} }
         };
 
-        private readonly List<Color> _existingColorFilter = new List<Color>
-        {
-            Color.AliceBlue,
-            Color.AliceBlue,
-            Color.Aqua
-        };
+        private readonly Point _cancelLootButtonPosition = new Point(10,10);
 
-        private Point cancelLootButtonPosition = new Point(10,10);
-
-        private Image relicImage = null;
+        private readonly Image _relicImage = null;
 
         public FishingEngine(IRegonizeArea regonizeArea, IInputSender inputSender)
         {
@@ -104,8 +98,9 @@ namespace BDMultiTool.Engines
         private void WaitFishingStart()
         {
             //Search Space Rectangle for starting fishing cycle
-            var startFishingArea = new Rect { X = 10, Y = 10, Width = 80, Height = 40 };
+            var startFishingArea = new Rect { X = 760, Y = 164, Width = 153, Height = 65 };
 
+            //RGB : 164/136/26
             _regonizeArea.WaitRectangleColor(startFishingArea, Color.Gold, 20, WaitFishingStart_Callback, 5000);
         }
 
@@ -119,8 +114,9 @@ namespace BDMultiTool.Engines
         private void WaitFishingGaugeInBlueArea()
         {
             //Search when fishing gauge are in blue area
-            var fishingGauge = new Rect { X = 10, Y = 10, Width = 80, Height = 40 };
+            var fishingGauge = new Rect { X = 930, Y = 410, Width = 5, Height = 10 };
 
+            //RGB: 93/142/172
             _regonizeArea.WaitRectangleColor(fishingGauge, Color.CornflowerBlue, 20, WaitFishingGaugeInBlueArea_Callback, 100);
         }
 
@@ -234,14 +230,14 @@ namespace BDMultiTool.Engines
             }
             else
             {
-                var areas = _regonizeArea.GetAreasForImage(relicImage);
+                var areas = _regonizeArea.GetAreasForImage(_relicImage);
                 foreach (var area in areas)
                 {
                     _inputSender.MouseRightClickTo(new Point(Convert.ToInt32(area.X + area.Width % 2), Convert.ToInt32(area.Y + area.Height % 2)));
                     Thread.Sleep(1000);
                 }
 
-                _inputSender.MouseLeftClickTo(cancelLootButtonPosition);
+                _inputSender.MouseLeftClickTo(_cancelLootButtonPosition);
                 Thread.Sleep(1000);
             }
 

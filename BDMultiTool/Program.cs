@@ -1,4 +1,5 @@
 ﻿using System;
+using BDMultiTool.Core;
 using BDMultiTool.Core.Notification;
 using BDMultiTool.Core.PInvoke;
 using BDMultiTool.Macros;
@@ -41,6 +42,7 @@ namespace BDMultiTool
             container.Register<INotifier, ToasterNotifier>();
             container.Register<ISoundNotifier, SoundNotification>();
             container.Register<IMacroManager, MacroManager>();
+            container.Register<IInputSender, InputSender>();
 
             // Register your types, for instance:
             //container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);

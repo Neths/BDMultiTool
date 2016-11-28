@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace BDMultiTool.Engines
+namespace BDMultiTool.Core
 {
     public class RectEventArgs : EventArgs
     {

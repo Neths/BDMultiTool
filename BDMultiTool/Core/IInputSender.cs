@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace BDMultiTool.Engines
+namespace BDMultiTool.Core
 {
     public interface IInputSender
     {

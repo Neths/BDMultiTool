@@ -92,14 +92,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Core\InputSender.cs" />
     <Compile Include="Core\Notification\SoundNotification.cs" />
     <Compile Include="Core\Persistence\XmlUtilities.cs" />
     <Compile Include="Engines\FishingEngine.cs" />
     <Compile Include="Engines\IEngine.cs" />
-    <Compile Include="Engines\IInputSender.cs" />
+    <Compile Include="Core\IInputSender.cs" />
     <Compile Include="Engines\IRecognizeChar.cs" />
-    <Compile Include="Engines\IRegonizeArea.cs" />
-    <Compile Include="Engines\RectEventArgs.cs" />
+    <Compile Include="Core\IRegonizeArea.cs" />
+    <Compile Include="Core\RectEventArgs.cs" />
     <Compile Include="Fishing\FishingLog.xaml.cs">
       <DependentUpon>FishingLog.xaml</DependentUpon>
     </Compile>

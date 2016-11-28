@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows;
 
-namespace BDMultiTool.Engines
+namespace BDMultiTool.Core
 {
     public interface IRegonizeArea
     {
