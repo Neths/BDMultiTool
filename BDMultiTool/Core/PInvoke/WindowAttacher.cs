@@ -47,29 +47,29 @@ namespace BDMultiTool.Core.PInvoke
             }
         }
 
-        private void ObservedWindowEvent(int windowEvent) {
+        private void ObservedWindowEvent(User32.WindowEventTypes windowEvent) {
             switch (windowEvent) {
-                case WindowEventTypes.EVENT_OBJECT_FOCUS: {
+                case User32.WindowEventTypes.EVENT_OBJECT_FOCUS: {
                         _overlay.Update(GetWindowArea());
                         _overlay.Show();
                         MyApp.minimized = false;
                     }
                     break;
-                case WindowEventTypes.EVENT_OBJECT_HIDE: {
+                case User32.WindowEventTypes.EVENT_OBJECT_HIDE: {
                         MyApp.minimized = true;
                         _overlay.Hide();
                         _notifier.Notify("Info", "BDMT has been minimized!");
                     }
                     break;
-                case WindowEventTypes.EVENT_OBJECT_LOCATIONCHANGE: {
+                case User32.WindowEventTypes.EVENT_OBJECT_LOCATIONCHANGE: {
                         _overlay.Update(GetWindowArea());
                     }
                     break;
-                case WindowEventTypes.EVENT_OBJECT_SHOW: {
+                case User32.WindowEventTypes.EVENT_OBJECT_SHOW: {
 
                     }
                     break;
-                case WindowEventTypes.EVENT_SYSTEM_FOREGROUND: {
+                case User32.WindowEventTypes.EVENT_SYSTEM_FOREGROUND: {
 
                     }
                     break;

@@ -21,7 +21,7 @@ namespace BDMultiTool.Core.PInvoke
         }
         [DllImport("user32.dll")]
         public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int processId);
-        [DllImport("USER32.DLL", SetLastError = true)]
+        [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr SetWinEventHook(int eventMin, int eventMax, IntPtr hmodWinEventProc, WinEventProc lpfnWinEventProc, int idProcess, int idThread, SetWinEventHookFlags dwflags);
 
         public enum SetWinEventHookFlags
@@ -32,7 +32,7 @@ namespace BDMultiTool.Core.PInvoke
             WINEVENT_SKIPOWNTHREAD = 1
         }
 
-        public delegate void WinEventProc(IntPtr hWinEventHook, int iEvent, IntPtr hWnd, int idObject, int idChild, int dwEventThread, int dwmsEventTime);
+        public delegate void WinEventProc(IntPtr hWinEventHook, WindowEventTypes iEvent, IntPtr hWnd, int idObject, int idChild, int dwEventThread, int dwmsEventTime);
 
         public enum WindowEventTypes
         {

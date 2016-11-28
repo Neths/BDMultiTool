@@ -5,10 +5,10 @@ namespace BDMultiTool.Core.PInvoke {
     class WindowObserver {
         private static IntPtr windowHandle;
         private static IntPtr eventHook;
-        private static Action<int> callback;
+        private static Action<User32.WindowEventTypes> callback;
         private static User32.WinEventProc eventListener;
 
-        public WindowObserver(IntPtr windowHandle, Action<int> callback) {
+        public WindowObserver(IntPtr windowHandle, Action<User32.WindowEventTypes> callback) {
             WindowObserver.windowHandle = windowHandle;
             WindowObserver.callback = callback;
             eventListener = new User32.WinEventProc(WindowEventCallback);
@@ -19,7 +19,7 @@ namespace BDMultiTool.Core.PInvoke {
             Debug.WriteLine("hooked to window: " + eventHook);
         }
 
-        private static void WindowEventCallback(IntPtr hWinEventHook, int iEvent, IntPtr hWnd, int idObject, int idChild, int dwEventThread, int dwmsEventTime) {
+        private static void WindowEventCallback(IntPtr hWinEventHook, User32.WindowEventTypes iEvent, IntPtr hWnd, int idObject, int idChild, int dwEventThread, int dwmsEventTime) {
             if(hWnd == WindowObserver.windowHandle) {
                 callback(iEvent);
                 //Debug.WriteLine("Event on BDO window: " + iEvent.ToString("X4"));

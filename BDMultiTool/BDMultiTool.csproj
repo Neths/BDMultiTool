@@ -119,9 +119,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Core\Factory\GraphicsFactory.cs" />
     <Compile Include="Core\InputSender.cs" />
     <Compile Include="Core\Notification\SoundNotification.cs" />
     <Compile Include="Core\Persistence\XmlUtilities.cs" />
+    <Compile Include="Core\PInvoke\IWindowAttacher.cs" />
     <Compile Include="Core\PInvoke\User32.cs" />
     <Compile Include="Core\RegonizeEngine.cs" />
     <Compile Include="Engines\FishingEngine.cs" />
@@ -158,6 +160,7 @@
       <DependentUpon>NotificationWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="ScreenHelper.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -169,7 +172,6 @@
     <Compile Include="Core\Notification\Toaster.cs" />
     <Compile Include="Utilities\KeyToString.cs" />
     <Compile Include="Core\PInvoke\WindowObserver.cs" />
-    <Compile Include="Core\PInvoke\WindowEventTypes.cs" />
     <Compile Include="Core\PInvoke\WindowAttacher.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
