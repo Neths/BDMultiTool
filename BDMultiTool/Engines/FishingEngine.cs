@@ -101,7 +101,7 @@ namespace BDMultiTool.Engines
             var startFishingArea = new Rect { X = 760, Y = 164, Width = 153, Height = 65 };
 
             //RGB : 164/136/26
-            _regonizeArea.WaitRectangleColor(startFishingArea, Color.Gold, 20, WaitFishingStart_Callback, 5000);
+            _regonizeArea.WaitRectangleColor(startFishingArea, Color.FromArgb(164,136,26), 20, WaitFishingStart_Callback, 5000);
         }
 
         private void WaitFishingStart_Callback(object sender, RectEventArgs args)
@@ -117,7 +117,7 @@ namespace BDMultiTool.Engines
             var fishingGauge = new Rect { X = 930, Y = 410, Width = 5, Height = 10 };
 
             //RGB: 93/142/172
-            _regonizeArea.WaitRectangleColor(fishingGauge, Color.CornflowerBlue, 20, WaitFishingGaugeInBlueArea_Callback, 100);
+            _regonizeArea.WaitRectangleColor(fishingGauge, Color.FromArgb(93,142,172), 20, WaitFishingGaugeInBlueArea_Callback, 100);
         }
 
         private void WaitFishingGaugeInBlueArea_Callback(object sender, RectEventArgs args)

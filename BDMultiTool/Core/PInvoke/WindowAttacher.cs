@@ -2,20 +2,12 @@
 using InputManager;
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
-using System.Windows.Forms;
 using NLog;
 
 namespace BDMultiTool.Core.PInvoke
 {
-    public interface IWindowAttacher
-    {
-        void Attach(IntPtr handleToAttach);
-        void SendKeypress(Keys currentKey);
-    }
-
     public class WindowAttacher : IWindowAttacher
     {
         private IntPtr _windowHandle;
@@ -48,7 +40,7 @@ namespace BDMultiTool.Core.PInvoke
                 _windowHandle = windowHandle;
 
                 _windowEventHook = new WindowObserver(windowHandle, ObservedWindowEvent);
-                SetForegroundWindow(windowHandle);
+                User32.SetForegroundWindow(windowHandle);
 
                 _overlay.Update(GetWindowArea());
                 _overlay.Topmost = true;
@@ -92,19 +84,19 @@ namespace BDMultiTool.Core.PInvoke
 
 
         public void SendKeypress(System.Windows.Forms.Keys keyToSend) {
-            SetForegroundWindow(_windowHandle);
+            User32.SetForegroundWindow(_windowHandle);
             Keyboard.KeyPress(keyToSend);
             Thread.Sleep(50);
         }
 
         public void SendKeyDown(System.Windows.Forms.Keys keyToSend) {
-            SetForegroundWindow(_windowHandle);
+            User32.SetForegroundWindow(_windowHandle);
             Keyboard.KeyDown(keyToSend);
             Thread.Sleep(50);
         }
 
         public void SendKeyUp(System.Windows.Forms.Keys keyToSend) {
-            SetForegroundWindow(_windowHandle);
+            User32.SetForegroundWindow(_windowHandle);
             Keyboard.KeyUp(keyToSend);
             Thread.Sleep(50);
         }
@@ -122,8 +114,8 @@ namespace BDMultiTool.Core.PInvoke
 
         public Rect GetWindowArea()
         {
-            RECT rectStructure;
-            GetWindowRect(_windowHandle, out rectStructure);
+            User32.Rect rectStructure;
+            User32.GetWindowRect(_windowHandle, out rectStructure);
 
             return new Rect
             {
@@ -134,28 +126,9 @@ namespace BDMultiTool.Core.PInvoke
             };
         }
 
-        [DllImport("user32.dll")]
-        private static extern bool SetFocus(IntPtr hWnd);
 
-        [DllImport("user32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        [DllImport("user32.dll")]
-        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
 
     }
 

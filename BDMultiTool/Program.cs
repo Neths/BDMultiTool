@@ -1,5 +1,6 @@
 ﻿using System;
 using BDMultiTool.Core;
+using BDMultiTool.Core.Factory;
 using BDMultiTool.Core.Notification;
 using BDMultiTool.Core.PInvoke;
 using BDMultiTool.Macros;
@@ -43,6 +44,8 @@ namespace BDMultiTool
             container.Register<ISoundNotifier, SoundNotification>();
             container.Register<IMacroManager, MacroManager>();
             container.Register<IInputSender, InputSender>();
+            container.Register<IGraphicFactory, GraphicsFactory>();
+            container.Register<IScreenHelper, ScreenHelper>();
 
             // Register your types, for instance:
             //container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
