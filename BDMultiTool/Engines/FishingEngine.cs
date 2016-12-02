@@ -18,6 +18,7 @@ namespace BDMultiTool.Engines
         private bool _running = false;
         private Thread _thread;
 
+        //TODO
         private readonly Dictionary<int, Point> _shortcutsArea = new Dictionary<int, Point>
         {
             { 1, new Point { X = 10, Y = 10 } },
@@ -26,6 +27,8 @@ namespace BDMultiTool.Engines
             { 4, new Point { X = 10, Y = 10 } },
             { 5, new Point { X = 10, Y = 10 } }
         };
+
+        private readonly Rect _fishingMiniGameArea = new Rect();
 
         private readonly Point _cancelLootButtonPosition = new Point(10,10);
 
@@ -128,6 +131,7 @@ namespace BDMultiTool.Engines
             WaitDisplayFishingMinigame();
         }
 
+        //TODO
         private void WaitDisplayFishingMinigame()
         {
             //Wait fish mini game dispay with with characters on top
@@ -139,21 +143,14 @@ namespace BDMultiTool.Engines
         private void WaitDisplayFishingMinigame_Callback(object sender, RectEventArgs args)
         {
             Debug.Write("Fishing mini game displayed ==> resolve game");
-            SolveFishingMiniGame(args.Rect);
+            SolveFishingMiniGame();
         }
 
-        private void SolveFishingMiniGame(Rect refRect)
+        //TODO
+        private void SolveFishingMiniGame()
         {
             //Resolve Mini game
-            var fishingMiniGameArea = new Rect
-            {
-                X = refRect.X + 10,
-                Y = refRect.Y + 10,
-                Width = refRect.Width,
-                Height = refRect.Height
-            };
-
-            SolveMiniGame(fishingMiniGameArea, SolveFishingMiniGame_Callback);
+            SolveMiniGame(SolveFishingMiniGame_Callback);
         }
 
         private void SolveFishingMiniGame_Callback(object sender, KeysEventArgs args)
@@ -181,9 +178,9 @@ namespace BDMultiTool.Engines
         }
 
 
-        private void SolveMiniGame(Rect fishingMiniGameArea, EventHandler<KeysEventArgs> fishingStep4Callback)
+        private void SolveMiniGame(EventHandler<KeysEventArgs> fishingStep4Callback)
         {
-            var startPointOfTimeGauge = FindTimeGauge(fishingMiniGameArea);
+            var startPointOfTimeGauge = FindTimeGauge(_fishingMiniGameArea);
 
             var triangleAreas = GetTriangleArea(startPointOfTimeGauge).ToList();
 
@@ -196,26 +193,31 @@ namespace BDMultiTool.Engines
             fishingStep4Callback(this,new KeysEventArgs(keys));
         }
 
+        //TODO
         private IEnumerable<Rect> GetTriangleArea(Point startPointOfTimeGauge)
         {
             throw new NotImplementedException();
         }
 
+        //TODO
         private Point FindTimeGauge(Rect fishingMiniGameArea)
         {
             throw new NotImplementedException();
         }
 
+        //TODO
         private Keys GetKeyFromOrientedTriangle(OrientedTriangle orientedTriangle)
         {
             throw new NotImplementedException();
         }
 
+        //TODO
         private IEnumerable<OrientedTriangle> CalculateOrientation(IEnumerable<Rect> triangleAreas , Color colorFilter)
         {
             throw new NotImplementedException();
         }
 
+        //TODO
         private Color GetColorNoise(Rect triangleArea)
         {
             throw new NotImplementedException();
@@ -289,12 +291,13 @@ namespace BDMultiTool.Engines
             return MainWeaponDurabilityShortcut();
         }
 
+        //TODO
         private bool MainWeaponDurabilityShortcut()
         {
             var mainWeaponDurabilityShortcutArea = new Point
             {
-                X = 10,
-                Y = 10
+                X = 1290,
+                Y = 138
             };
 
             return _regonizeArea.GetColor(mainWeaponDurabilityShortcutArea) == Color.Red;
