@@ -135,6 +135,8 @@
     <Compile Include="Fishing\FishingLog.xaml.cs">
       <DependentUpon>FishingLog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="IGraphicFactory.cs" />
+    <Compile Include="IScreenHelper.cs" />
     <Compile Include="Macros\MacroAddControl.xaml.cs">
       <DependentUpon>MacroAddControl.xaml</DependentUpon>
     </Compile>

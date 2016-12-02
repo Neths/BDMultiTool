@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
+using Point = System.Windows.Point;
+using Size = System.Windows.Size;
 
 namespace BDMultiTool.Core
 {
@@ -22,6 +22,15 @@ namespace BDMultiTool.Core
             _screenHelper = screenHelper;
         }
 
+        public static BitmapSource ConvertBitmap(Bitmap source)
+        {
+            return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                          source.GetHbitmap(),
+                          IntPtr.Zero,
+                          Int32Rect.Empty,
+                          BitmapSizeOptions.FromEmptyOptions());
+        }
+
         public void WaitRectangleColor(Rect canny, Color color, int colorThreshold, EventHandler<RectEventArgs> callback, int checkFrequency)
         {
             while (true)
@@ -30,10 +39,11 @@ namespace BDMultiTool.Core
 
                 var imgFiltered = FilterCaptcha(new Image<Bgr, byte>(img), new FilterParam(color, colorThreshold));
 
-                var lstC = new List<Rectangle>();
+                //Clipboard.SetImage(ConvertBitmap(imgFiltered.Bitmap));
+
                 using (var contours = new VectorOfVectorOfPoint())
                 {
-                    CvInvoke.FindContours(imgFiltered, contours, null, RetrType.List, ChainApproxMethod.ChainApproxNone);
+                    CvInvoke.FindContours(imgFiltered, contours, null, RetrType.List, ChainApproxMethod.LinkRuns);
 
                     for (var i = 0; i < contours.Size; i++)
                     {
@@ -44,11 +54,9 @@ namespace BDMultiTool.Core
 
                         var area = CvInvoke.MinAreaRect(contour).MinAreaRect();
 
-                        if (area.Height >= 200)
+                        if (area.Height >= 50 && area.Width >= 100)
                         {
-                            //var angle = CvInvoke.MinAreaRect(contour).Angle;
-
-                            lstC.Add(area);
+                            callback(this, new RectEventArgs(new Rect(new Point(area.X,area.Y),new Size(area.Width,area.Height))));
                         }
                     }
                 }
@@ -57,26 +65,15 @@ namespace BDMultiTool.Core
             }
         }
 
-        public static Image<Gray, byte> FilterCaptcha(Image<Bgr, byte> imgSrc, int filterB, int filterG, int filterR, int filterOffset)
+        public Color GetColor(System.Drawing.Point point)
         {
-            var filter = new FilterParam { B = filterB, G = filterG, R = filterR, Offset = filterOffset };
-
-            return FilterCaptcha(imgSrc, filter);
+            var img = _screenHelper.ScreenArea(new Rectangle(Convert.ToInt32(point.X), Convert.ToInt32(point.Y), 1, 1));
+            return img.GetPixel(0,0);
         }
 
         public static Image<Gray, byte> FilterCaptcha(Image<Bgr, byte> imgSrc, FilterParam filter)
         {
             return imgSrc.InRange(filter.GetMinus(), filter.GetMaxi());
-        }
-
-        public void GetTriangle(Rect canny)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Color GetColorArea(Rect rectangle)
-        {
-            throw new NotImplementedException();
         }
 
         public IEnumerable<Rect> GetAreasForImage(Image image)

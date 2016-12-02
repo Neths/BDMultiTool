@@ -14,19 +14,9 @@ namespace BDMultiTool
 
         public Bitmap ScreenArea(Rectangle rect)
         {
-            var bmp = _graphicFactory.CopyFromScreen(rect.Left, rect.Top, new Size(rect.Width, rect.Width), CopyPixelOperation.SourceCopy, PixelFormat.Format32bppArgb);
+            var bmp = _graphicFactory.CopyFromScreen(rect.Left, rect.Top, new Size(rect.Width, rect.Height), CopyPixelOperation.SourceCopy, PixelFormat.Format32bppArgb);
             
             return bmp;
         }
-    }
-
-    public interface IScreenHelper
-    {
-        Bitmap ScreenArea(Rectangle rect);
-    }
-
-    public interface IGraphicFactory
-    {
-        Bitmap CopyFromScreen(int sourceX, int sourceY, Size blockRegionSize, CopyPixelOperation copyPixelOperation, PixelFormat pixelFormat);
     }
 }

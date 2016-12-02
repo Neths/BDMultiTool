@@ -18,13 +18,13 @@ namespace BDMultiTool.Engines
         private bool _running = false;
         private Thread _thread;
 
-        private readonly Dictionary<int,Rect> _shortcutsArea = new Dictionary<int, Rect>
+        private readonly Dictionary<int, Point> _shortcutsArea = new Dictionary<int, Point>
         {
-            { 1, new Rect { X = 10, Y = 10, Width = 10, Height = 10} },
-            { 2, new Rect { X = 10, Y = 10, Width = 10, Height = 10} },
-            { 3, new Rect { X = 10, Y = 10, Width = 10, Height = 10} },
-            { 4, new Rect { X = 10, Y = 10, Width = 10, Height = 10} },
-            { 5, new Rect { X = 10, Y = 10, Width = 10, Height = 10} }
+            { 1, new Point { X = 10, Y = 10 } },
+            { 2, new Point { X = 10, Y = 10 } },
+            { 3, new Point { X = 10, Y = 10 } },
+            { 4, new Point { X = 10, Y = 10 } },
+            { 5, new Point { X = 10, Y = 10 } }
         };
 
         private readonly Point _cancelLootButtonPosition = new Point(10,10);
@@ -99,6 +99,7 @@ namespace BDMultiTool.Engines
         {
             //Search Space Rectangle for starting fishing cycle
             var startFishingArea = new Rect { X = 760, Y = 164, Width = 153, Height = 65 };
+            //new Rectangle { X = 760, Y = 164, Width = 155, Height = 65 };
 
             //RGB : 164/136/26
             _regonizeArea.WaitRectangleColor(startFishingArea, Color.FromArgb(164,136,26), 20, WaitFishingStart_Callback, 5000);
@@ -261,7 +262,7 @@ namespace BDMultiTool.Engines
 
         private bool CheckDurabilityShortcut(int i)
         {
-            return _regonizeArea.GetColorArea(_shortcutsArea[i]) == Color.Red;
+            return _regonizeArea.GetColor(_shortcutsArea[i]) == Color.Red;
         }
 
         private Keys GetShortcutKey(int i)
@@ -290,15 +291,13 @@ namespace BDMultiTool.Engines
 
         private bool MainWeaponDurabilityShortcut()
         {
-            var mainWeaponDurabilityShortcutArea = new Rect
+            var mainWeaponDurabilityShortcutArea = new Point
             {
                 X = 10,
-                Y = 10,
-                Width = 10,
-                Height = 10
+                Y = 10
             };
 
-            return _regonizeArea.GetColorArea(mainWeaponDurabilityShortcutArea) == Color.Red;
+            return _regonizeArea.GetColor(mainWeaponDurabilityShortcutArea) == Color.Red;
         }
     }
 

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDMultiTool", "BDMultiTool\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDOHelpers", "BDOHelpers\BDOHelpers.csproj", "{07B89302-1895-4B79-A60C-2DBD01C2078B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDMultiToolTests", "BDMultiToolTests\BDMultiToolTests.csproj", "{98730A43-8148-4046-8901-A8DD2189FAD8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{07B89302-1895-4B79-A60C-2DBD01C2078B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07B89302-1895-4B79-A60C-2DBD01C2078B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07B89302-1895-4B79-A60C-2DBD01C2078B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98730A43-8148-4046-8901-A8DD2189FAD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98730A43-8148-4046-8901-A8DD2189FAD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98730A43-8148-4046-8901-A8DD2189FAD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98730A43-8148-4046-8901-A8DD2189FAD8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
