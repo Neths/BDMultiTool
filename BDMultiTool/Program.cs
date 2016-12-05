@@ -3,6 +3,8 @@ using BDMultiTool.Core;
 using BDMultiTool.Core.Factory;
 using BDMultiTool.Core.Notification;
 using BDMultiTool.Core.PInvoke;
+using BDMultiTool.Engines;
+using BDMultiTool.Fishing;
 using BDMultiTool.Macros;
 using NLog;
 using NLog.Config;
@@ -46,6 +48,9 @@ namespace BDMultiTool
             container.Register<IInputSender, InputSender>();
             container.Register<IGraphicFactory, GraphicsFactory>();
             container.Register<IScreenHelper, ScreenHelper>();
+            container.Register<IEngine,FishingEngine>();
+            container.Register<IFishingWindow,FishingLog>();
+            container.Register<IRegonizeArea, RegonizeEngine>();
 
             // Register your types, for instance:
             //container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);

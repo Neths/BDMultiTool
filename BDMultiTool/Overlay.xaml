@@ -50,6 +50,12 @@
                 </ItemsPanelTemplate>
             </Menu.ItemsPanel>
 
+            <MenuItem x:Name="FishMenu" Header="Fishing" Click="FishMenu_OnClick">
+                <MenuItem.Icon>
+                    <Image Source="Resources/macroMenuIcon.png"></Image>
+                </MenuItem.Icon>
+            </MenuItem>
+
             <MenuItem x:Name="MacrosMenu" Header="Macros" Click="macrosMenu_Click">
                 <MenuItem.Icon>
                     <Image Source="Resources/macroMenuIcon.png"></Image>

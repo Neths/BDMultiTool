@@ -105,7 +105,7 @@ namespace BDMultiTool.Engines
             //new Rectangle { X = 760, Y = 164, Width = 155, Height = 65 };
 
             //RGB : 164/136/26
-            _regonizeArea.WaitRectangleColor(startFishingArea, Color.FromArgb(164,136,26), 20, WaitFishingStart_Callback, 5000);
+            _regonizeArea.WaitRectangleColor(startFishingArea, Color.FromArgb(164,136,26), 80, WaitFishingStart_Callback, 5000);
         }
 
         private void WaitFishingStart_Callback(object sender, RectEventArgs args)
@@ -128,7 +128,7 @@ namespace BDMultiTool.Engines
         {
             Debug.Write("fish gauge in blue area ==> press space");
             _inputSender.SendKeys(Keys.Space);
-            WaitDisplayFishingMinigame();
+            //WaitDisplayFishingMinigame();
         }
 
         //TODO

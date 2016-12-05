@@ -12,21 +12,22 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using BDMultiTool.Engines;
 
-namespace BDMultiTool.Fishing
+namespace BDMultiTool.Market
 {
     /// <summary>
-    /// Interaction logic for FishingLog.xaml
+    /// Interaction logic for Market.xaml
     /// </summary>
-    public partial class FishingLog : UserControl, IFishingWindow
+    public partial class Market : Page
     {
-        private readonly IEngine _engine;
-
-        public FishingLog(IEngine engine)
+        public Market()
         {
-            _engine = engine;
             InitializeComponent();
+        }
+
+        private void StartStopButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void customButton_MouseEnter(object sender, MouseEventArgs e)
@@ -37,11 +38,6 @@ namespace BDMultiTool.Fishing
         private void customButton_MouseLeave(object sender, MouseEventArgs e)
         {
             ((Button)sender).Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 249, 60, 64));
-        }
-
-        private void StartStopButton_Click(object sender, RoutedEventArgs e)
-        {
-            _engine.Start();
         }
     }
 }

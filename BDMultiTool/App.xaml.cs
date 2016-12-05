@@ -36,7 +36,7 @@ namespace BDMultiTool
 
             minimized = false;
 
-            _windowAttacher.Attach(WindowAttacher.GetHandleByWindowTitleBeginningWith("Sans titre"));
+            _windowAttacher.Attach(WindowAttacher.GetHandleByWindowTitleBeginningWith("BLACK DESERT"));
 
             appCoreIsInitialized = true;
 

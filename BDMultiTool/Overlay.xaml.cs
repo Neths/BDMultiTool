@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using BDMultiTool.Core.Notification;
+using BDMultiTool.Fishing;
 
 namespace BDMultiTool {
 
@@ -27,9 +28,10 @@ namespace BDMultiTool {
         private readonly UserControl _settingWindowHost;
         private readonly UserControl _macrosGalleryWindowHost;
         private readonly UserControl _macrosWindowHost;
+        private UserControl _fishingWindowHost;
 
 
-        public Overlay(ISettingsWindow settingsWindow, INotifier notifier)
+        public Overlay(ISettingsWindow settingsWindow, INotifier notifier, IFishingWindow fishingWindow)
         {
             _notifier = notifier;
             Title = Guid.NewGuid().ToString();
@@ -45,6 +47,7 @@ namespace BDMultiTool {
 
             _macrosGalleryWindowHost = AddWindowToGrid(macroGallery, "Macros", false);
             _macrosWindowHost = AddWindowToGrid(new MacroAddControl(), "Create new macro", false);
+            _fishingWindowHost = AddWindowToGrid((UserControl) fishingWindow, "Fishing", false);
         }
 
         private void mainMenu_Click(object sender, RoutedEventArgs e)
@@ -125,5 +128,17 @@ namespace BDMultiTool {
             RootGrid.Children.Add(currentInnerWindow);
             return currentInnerWindow;
         }
+
+        private void FishMenu_OnClick(object sender, RoutedEventArgs e)
+        {
+            _fishingWindowHost.Dispatcher.Invoke(() =>
+            {
+                _fishingWindowHost.Visibility = Visibility.Visible;
+            });
+        }
+    }
+
+    public interface IFishingWindow
+    {
     }
 }

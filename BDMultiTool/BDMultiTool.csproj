@@ -150,6 +150,9 @@
     <Compile Include="Macros\MacroItemModel.cs" />
     <Compile Include="Macros\MacroManager.cs" />
     <Compile Include="Macros\MacroManagerThread.cs" />
+    <Compile Include="Market\Market.xaml.cs">
+      <DependentUpon>Market.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MovableUserControl.xaml.cs">
       <DependentUpon>MovableUserControl.xaml</DependentUpon>
     </Compile>
@@ -192,6 +195,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Macros\MacroItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Market\Market.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
