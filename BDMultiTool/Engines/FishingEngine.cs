@@ -18,21 +18,11 @@ namespace BDMultiTool.Engines
         private bool _running = false;
         private Thread _thread;
 
-        //TODO
-        private readonly Dictionary<int, Point> _shortcutsArea = new Dictionary<int, Point>
-        {
-            { 1, new Point { X = 10, Y = 10 } },
-            { 2, new Point { X = 10, Y = 10 } },
-            { 3, new Point { X = 10, Y = 10 } },
-            { 4, new Point { X = 10, Y = 10 } },
-            { 5, new Point { X = 10, Y = 10 } }
-        };
-
         private readonly Rect _fishingMiniGameArea = new Rect();
 
-        private readonly Point _cancelLootButtonPosition = new Point(10,10);
-
         private readonly Image _relicImage = null;
+
+        private readonly List<Keys> _shortcutList = new List<Keys> { Keys.Oem2, Keys.Oem3 };
 
         public FishingEngine(IRegonizeArea regonizeArea, IInputSender inputSender)
         {
@@ -105,7 +95,7 @@ namespace BDMultiTool.Engines
             //new Rectangle { X = 760, Y = 164, Width = 155, Height = 65 };
 
             //RGB : 164/136/26
-            _regonizeArea.WaitRectangleColor(startFishingArea, Color.FromArgb(164,136,26), 20, WaitFishingStart_Callback, 5000);
+            _regonizeArea.WaitRectangleColor(startFishingArea, Color.FromArgb(164,136,26), 20, WaitFishingStart_Callback, 5000, new RegonizeEngine.ContourAcceptance() {Size = 10, Width = 100, Height = 50});
         }
 
         private void WaitFishingStart_Callback(object sender, RectEventArgs args)
@@ -120,8 +110,10 @@ namespace BDMultiTool.Engines
             //Search when fishing gauge are in blue area
             var fishingGauge = new Rect { X = 930, Y = 410, Width = 5, Height = 10 };
 
+            //_regonizeArea.GetColor(new Point())
+
             //RGB: 93/142/172
-            _regonizeArea.WaitRectangleColor(fishingGauge, Color.FromArgb(93,142,172), 20, WaitFishingGaugeInBlueArea_Callback, 100);
+            //_regonizeArea.WaitRectangleColor(fishingGauge, Color.FromArgb(93,142,172), 20, WaitFishingGaugeInBlueArea_Callback, 100, new RegonizeEngine.ContourAcceptance() { Size = 10, Width = 100, Height = 50 });
         }
 
         private void WaitFishingGaugeInBlueArea_Callback(object sender, RectEventArgs args)
@@ -137,7 +129,7 @@ namespace BDMultiTool.Engines
             //Wait fish mini game dispay with with characters on top
             var fishingMiniGameArea = new Rect { X = 10, Y = 10, Width = 80, Height = 40 };
 
-            _regonizeArea.WaitRectangleColor(fishingMiniGameArea, Color.White, 20, WaitDisplayFishingMinigame_Callback, 100);
+            _regonizeArea.WaitRectangleColor(fishingMiniGameArea, Color.White, 20, WaitDisplayFishingMinigame_Callback, 100, new RegonizeEngine.ContourAcceptance() { Size = 10, Width = 100, Height = 50 });
         }
 
         private void WaitDisplayFishingMinigame_Callback(object sender, RectEventArgs args)
@@ -167,7 +159,7 @@ namespace BDMultiTool.Engines
 
             Debug.Write("Looting");
 
-            Looting(true, WaitLooting_Callback);
+            Looting(WaitLooting_Callback);
         }
 
         private void WaitLooting_Callback(object sender, EventArgs args)
@@ -202,6 +194,8 @@ namespace BDMultiTool.Engines
         //TODO
         private Point FindTimeGauge(Rect fishingMiniGameArea)
         {
+            //620-310 / 140-170
+
             throw new NotImplementedException();
         }
 
@@ -223,38 +217,44 @@ namespace BDMultiTool.Engines
             throw new NotImplementedException();
         }
 
-        private void Looting(bool onlyRelic, EventHandler<EventArgs> waitLootingCallback)
+        private void Looting(EventHandler<EventArgs> waitLootingCallback)
         {
-            if (!onlyRelic)
-            {
-                Debug.Write("All Looting");
-                _inputSender.SendKeys(Keys.R);
-                Thread.Sleep(2000);
-            }
-            else
-            {
-                var areas = _regonizeArea.GetAreasForImage(_relicImage);
-                foreach (var area in areas)
-                {
-                    _inputSender.MouseRightClickTo(new Point(Convert.ToInt32(area.X + area.Width % 2), Convert.ToInt32(area.Y + area.Height % 2)));
-                    Thread.Sleep(1000);
-                }
+            //if (!onlyRelic)
+            //{
+            //    Debug.Write("All Looting");
+            //    _inputSender.SendKeys(Keys.R);
+                
+            //}
+            //else
+            //{
+            //    var areas = _regonizeArea.GetAreasForImage(_relicImage);
+            //    foreach (var area in areas)
+            //    {
+            //        _inputSender.MouseRightClickTo(new Point(Convert.ToInt32(area.X + area.Width % 2), Convert.ToInt32(area.Y + area.Height % 2)));
+            //        Thread.Sleep(1000);
+            //    }
 
-                _inputSender.MouseLeftClickTo(_cancelLootButtonPosition);
-                Thread.Sleep(1000);
-            }
+            //    _inputSender.MouseLeftClickTo(_cancelLootButtonPosition);
+            //    Thread.Sleep(1000);
+            //}
+
+            Thread.Sleep(2000);
 
             waitLootingCallback(this, new EventArgs());
         }
 
         private void SwitchRod(EventHandler<EventArgs> switchFishingRodCallback)
         {
-            for (var i = 0; i < 5; i++)
+            foreach (var key in _shortcutList)
             {
-                if (CheckDurabilityShortcut(i))
+                Debug.Write($"Switch to fishing rod in {key} shortcut");
+                _inputSender.SendKeys(key);
+                Thread.Sleep(2000);
+
+                if (HaveUsefullFishingRod())
                 {
-                    Debug.Write($"Switch to fishing rod in {i} shortcut");
-                    _inputSender.SendKeys(GetShortcutKey(i));
+                    switchFishingRodCallback(this, EventArgs.Empty);
+                    return;
                 }
             }
 
@@ -262,36 +262,11 @@ namespace BDMultiTool.Engines
             _running = false;
         }
 
-        private bool CheckDurabilityShortcut(int i)
-        {
-            return _regonizeArea.GetColor(_shortcutsArea[i]) == Color.Red;
-        }
-
-        private Keys GetShortcutKey(int i)
-        {
-            switch (i)
-            {
-                case 1:
-                    return Keys.Oem1;
-                case 2:
-                    return Keys.Oem2;
-                case 3:
-                    return Keys.Oem3;
-                case 4:
-                    return Keys.Oem4;
-                case 5:
-                    return Keys.Oem5;
-            }
-
-            return Keys.None;
-        }
-
         private bool HaveUsefullFishingRod()
         {
             return MainWeaponDurabilityShortcut();
         }
 
-        //TODO
         private bool MainWeaponDurabilityShortcut()
         {
             var mainWeaponDurabilityShortcutArea = new Point
@@ -300,7 +275,7 @@ namespace BDMultiTool.Engines
                 Y = 138
             };
 
-            return _regonizeArea.GetColor(mainWeaponDurabilityShortcutArea) == Color.Red;
+            return _regonizeArea.GetColor(mainWeaponDurabilityShortcutArea) != Color.FromArgb(147,6,15);
         }
     }
 

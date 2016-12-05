@@ -90,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ImageTest\a.jpg" />
+    <Content Include="ImageTest\b.JPG" />
   </ItemGroup>
   <ItemGroup>
     <None Include="OpenTK.dll.config" />
