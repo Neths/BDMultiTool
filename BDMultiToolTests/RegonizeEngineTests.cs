@@ -126,22 +126,26 @@ namespace BDMultiToolTests
             _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\ImageTest\b.jpg"));
             var engine = new RegonizeEngine(_screenHelper);
 
-            var r = new Rect { X = pointOfTimeGauge.X - 60, Y = pointOfTimeGauge.Y - 43, Width = 380, Height = 30 };
+            //var r = new Rect { X = pointOfTimeGauge.X - 60, Y = pointOfTimeGauge.Y - 45, Width = 380, Height = 17 };
+            var r = new Rect { X = pointOfTimeGauge.X + 77, Y = pointOfTimeGauge.Y - 38, Width = 380, Height = 17 };
             var r2 = new Rect { X = 0, Y = 0, Width = 400, Height = 60 };
             var args = new RectEventArgs(r2);
 
             GetValue(args, r);
 
-            engine.GetTriangles(r, Color.FromArgb(45, 66, 61), 10, WaitTriangles_Callback, 5000, new RegonizeEngine.ContourAcceptance { Size = 10, SizeOffset = 5, Width = 70, WidthOffset = 30, Height = 4, HeightOffset = 2 });
+            var aa = RegonizeEngine.FilterCaptcha(new Image<Bgr, byte>(_screenHelper.ScreenArea(FromRect(r))),
+                new RegonizeEngine.FilterParam(Color.FromArgb(0, 85, 255), 100));
 
-            //Clipboard.SetImage(ConvertBitmap(bmp));
+            //engine.GetTriangles(r, Color.FromArgb(0, 85, 255), 100, WaitTriangles_Callback, 5000, new RegonizeEngine.ContourAcceptance { Size = 10, SizeOffset = 5, Width = 70, WidthOffset = 30, Height = 4, HeightOffset = 2 });
+
+            Clipboard.SetImage(ConvertBitmap(aa.Bitmap));
 
             //var color = engine.GetColor(new System.Drawing.Point(pointOfTimeGauge.X - 34, pointOfTimeGauge.Y - 43));
 
             //620-310 / 140-170
             //var r = new Rect { X = 620, Y = 310, Width = 180, Height = 170 };
 
-            
+
         }
 
         private void WaitTriangles_Callback(object sender, RectEventArgs args)
