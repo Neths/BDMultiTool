@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows;
 
 namespace BDMultiTool.Core
 {
     public class RectEventArgs : EventArgs
     {
-        public Rect Rect { get; set; }
+        public Rectangle Rect { get; set; }
 
-        public RectEventArgs(Rect rect)
+        public RectEventArgs(Rectangle rect)
         {
             Rect = rect;
         }

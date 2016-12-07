@@ -91,7 +91,7 @@ namespace BDMultiTool.Engines
         private void WaitFishingStart()
         {
             //Search Space Rectangle for starting fishing cycle
-            var startFishingArea = new Rect { X = 760, Y = 164, Width = 153, Height = 65 };
+            var startFishingArea = new Rectangle { X = 760, Y = 164, Width = 153, Height = 65 };
             //new Rectangle { X = 760, Y = 164, Width = 155, Height = 65 };
 
             //RGB : 164/136/26
@@ -128,7 +128,7 @@ namespace BDMultiTool.Engines
         private void WaitDisplayFishingMinigame()
         {
             //Wait fish mini game dispay with with characters on top
-            var fishingMiniGameArea = new Rect { X = 10, Y = 10, Width = 80, Height = 40 };
+            var fishingMiniGameArea = new Rectangle { X = 10, Y = 10, Width = 80, Height = 40 };
 
             _regonizeArea.WaitRectangleColor(fishingMiniGameArea, Color.White, 20, WaitDisplayFishingMinigame_Callback, 100, new RegonizeEngine.ContourAcceptance() { Size = 10, Width = 100, Height = 50 });
         }

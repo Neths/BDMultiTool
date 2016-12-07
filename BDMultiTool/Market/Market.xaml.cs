@@ -18,7 +18,7 @@ namespace BDMultiTool.Market
     /// <summary>
     /// Interaction logic for Market.xaml
     /// </summary>
-    public partial class Market : Page
+    public partial class Market : UserControl
     {
         public Market()
         {

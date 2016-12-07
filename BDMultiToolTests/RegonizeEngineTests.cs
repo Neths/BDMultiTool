@@ -34,7 +34,7 @@ namespace BDMultiToolTests
             _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\ImageTest\a.jpg"));
             var engine = new RegonizeEngine(_screenHelper);
 
-            var r = new Rect { X = 760, Y = 164, Width = 155, Height = 65 };
+            var r = new Rectangle { X = 760, Y = 164, Width = 155, Height = 65 };
 
             engine.WaitRectangleColor(r, Color.FromArgb(164, 136, 26), 80, WaitFishingStart_Callback, 5000, new RegonizeEngine.ContourAcceptance { Size = 150, SizeOffset = 30, Width = 100, WidthOffset = 50, Height = 50, HeightOffset = 20 });
         }
@@ -45,8 +45,8 @@ namespace BDMultiToolTests
             _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\ImageTest\a.jpg"));
             var engine = new RegonizeEngine(_screenHelper);
 
-            var r = new Rect { X = 900, Y = 400, Width = 30, Height = 30 };
-            var r2 = new Rect { X = 0, Y = 0, Width = 60, Height = 60 };
+            var r = new Rectangle { X = 900, Y = 400, Width = 30, Height = 30 };
+            var r2 = new Rectangle { X = 0, Y = 0, Width = 60, Height = 60 };
             var args = new RectEventArgs(r2);
 
             GetValue(args, r);
@@ -66,8 +66,8 @@ namespace BDMultiToolTests
             _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\ImageTest\a.jpg"));
             var engine = new RegonizeEngine(_screenHelper);
 
-            var r = new Rect { X = 950, Y = 400, Width = 30, Height = 30 };
-            var r2 = new Rect { X = 0, Y = 0, Width = 60, Height = 60 };
+            var r = new Rectangle { X = 950, Y = 400, Width = 30, Height = 30 };
+            var r2 = new Rectangle { X = 0, Y = 0, Width = 60, Height = 60 };
             var args = new RectEventArgs(r2);
 
             GetValue(args, r);
@@ -81,16 +81,30 @@ namespace BDMultiToolTests
             //RGB: 93/142/172
         }
 
-        [Test, Apartment(ApartmentState.STA)]
-        public void SearchFishingGameTimeGauge()
+        [Apartment(ApartmentState.STA)]
+        [TestCase("b.jpg", 87, 127)]
+        [TestCase("c.jpg", 79, 110)]
+        [TestCase("d.jpg", 79, 110)]
+        public void SearchFishingGameTimeGauge(string imageName, int x, int y)
         {
-            _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\ImageTest\b.jpg"));
+            _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\ImageTest\{imageName}"));
             var engine = new RegonizeEngine(_screenHelper);
 
-            //620-310 / 140-170
-            var r = new Rect { X = 620, Y = 310, Width = 180, Height = 170 };
+            var r = new Rectangle { X = 620, Y = 310, Width = 180, Height = 170 };
 
-            engine.WaitRectangleColor(r, Color.FromArgb(255, 255, 255), 80, WaitGaugeBar_Callback, 5000, new RegonizeEngine.ContourAcceptance { Size = 10, SizeOffset = 5, Width = 70, WidthOffset = 30, Height = 4 , HeightOffset = 2});
+            var result = engine.GetRectangle(r, Color.FromArgb(255, 255, 255), 80,
+                new RegonizeEngine.ContourAcceptance
+                {
+                    Size = 10,
+                    SizeOffset = 5,
+                    Width = 70,
+                    WidthOffset = 30,
+                    Height = 4,
+                    HeightOffset = 2
+                });
+
+            Assert.AreEqual(x, result.X);
+            Assert.AreEqual(y, result.Y);
         }
 
         [Test, Apartment(ApartmentState.STA)]
@@ -103,72 +117,82 @@ namespace BDMultiToolTests
             _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\ImageTest\b.jpg"));
             var engine = new RegonizeEngine(_screenHelper);
 
-            var r = new Rect { X = pointOfTimeGauge.X - 34, Y = pointOfTimeGauge.Y - 43, Width = 15, Height = 15 };
-            var r2 = new Rect { X = 0, Y = 0, Width = 60, Height = 60 };
+            var r = new Rectangle { X = pointOfTimeGauge.X - 35 + 8, Y = pointOfTimeGauge.Y - 45 + 8, Width = 12, Height = 12 };
+            var r2 = new Rectangle { X = 0, Y = 0, Width = 60, Height = 60 };
             var args = new RectEventArgs(r2);
-
-            
 
             GetValue(args, r);
 
-            var color = engine.GetColor(new System.Drawing.Point(pointOfTimeGauge.X - 34, pointOfTimeGauge.Y - 43));
+            var color = engine.GetColor(new System.Drawing.Point(pointOfTimeGauge.X - 35 + 8, pointOfTimeGauge.Y - 45 + 8));
+
+            Assert.IsTrue(ArroundColor(Color.FromArgb(0, 85, 255), color, 10));
 
             //RGB:45/66/61
         }
 
-        [Test, Apartment(ApartmentState.STA)]
-        public void GetTrianglesOfFishingGame()
+        public static bool ArroundColor(Color refColor, Color checkColor, int threshold)
+        {
+            if (checkColor.R > refColor.R + threshold || checkColor.R < refColor.R - 10)
+                return false;
+
+            if (checkColor.G > refColor.G + threshold || checkColor.G < refColor.G - 10)
+                return false;
+
+            if (checkColor.B > refColor.B + threshold || checkColor.B < refColor.B - 10)
+                return false;
+
+            return true;
+        }
+
+        [Apartment(ApartmentState.STA)]
+        //78 - 113 - 148 - 183 - 218
+        [TestCase(323, RegonizeEngine.FishTriangle.Orientation.None)]
+        [TestCase(288, RegonizeEngine.FishTriangle.Orientation.None)]
+        [TestCase(253, RegonizeEngine.FishTriangle.Orientation.Down)]
+        [TestCase(218, RegonizeEngine.FishTriangle.Orientation.Left)]
+        [TestCase(183, RegonizeEngine.FishTriangle.Orientation.Left)]
+        [TestCase(148, RegonizeEngine.FishTriangle.Orientation.Left)]
+        [TestCase(113, RegonizeEngine.FishTriangle.Orientation.Down)]
+        [TestCase(78, RegonizeEngine.FishTriangle.Orientation.Left)]
+        [TestCase(43, RegonizeEngine.FishTriangle.Orientation.Down)]
+        [TestCase(8, RegonizeEngine.FishTriangle.Orientation.Down)]
+        public void GetTrianglesOfFishingGame(int xCoord, RegonizeEngine.FishTriangle.Orientation orientation)
         {
             //620-310
             //87-127
             var pointOfTimeGauge = new System.Drawing.Point(87 + 620, 127 + 310);
 
             _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\ImageTest\b.jpg"));
-            var engine = new RegonizeEngine(_screenHelper);
 
-            //var r = new Rect { X = pointOfTimeGauge.X - 60, Y = pointOfTimeGauge.Y - 45, Width = 380, Height = 17 };
-            var r = new Rect { X = pointOfTimeGauge.X + 77, Y = pointOfTimeGauge.Y - 38, Width = 380, Height = 17 };
-            var r2 = new Rect { X = 0, Y = 0, Width = 400, Height = 60 };
-            var args = new RectEventArgs(r2);
+            var r = new Rect { X = pointOfTimeGauge.X - 35, Y = pointOfTimeGauge.Y - 45, Width = 380, Height = 17 };
 
-            GetValue(args, r);
-
-            var aa = RegonizeEngine.FilterCaptcha(new Image<Bgr, byte>(_screenHelper.ScreenArea(FromRect(r))),
+            var filteredImage = RegonizeEngine.FilterCaptcha(new Image<Bgr, byte>(_screenHelper.ScreenArea(FromRect(r))),
                 new RegonizeEngine.FilterParam(Color.FromArgb(0, 85, 255), 100));
 
-            //engine.GetTriangles(r, Color.FromArgb(0, 85, 255), 100, WaitTriangles_Callback, 5000, new RegonizeEngine.ContourAcceptance { Size = 10, SizeOffset = 5, Width = 70, WidthOffset = 30, Height = 4, HeightOffset = 2 });
+            var t = new RegonizeEngine.FishTriangle(filteredImage,new System.Drawing.Point(xCoord,8));
 
-            Clipboard.SetImage(ConvertBitmap(aa.Bitmap));
+            Clipboard.SetImage(ConvertBitmap(t.GetBitmap()));
 
-            //var color = engine.GetColor(new System.Drawing.Point(pointOfTimeGauge.X - 34, pointOfTimeGauge.Y - 43));
-
-            //620-310 / 140-170
-            //var r = new Rect { X = 620, Y = 310, Width = 180, Height = 170 };
-
-
+            Assert.AreEqual(orientation, t.GetOrientation());
         }
 
         private void WaitTriangles_Callback(object sender, RectEventArgs args)
         {
-            var r = new Rect { X = 760, Y = 164, Width = 155, Height = 65 };
+            var r = new Rectangle { X = 760, Y = 164, Width = 155, Height = 65 };
             GetValue(args, r);
         }
 
         private void WaitFishingStart_Callback(object sender, RectEventArgs args)
         {
-            var r = new Rect { X = 760, Y = 164, Width = 155, Height = 65 };
+            var r = new Rectangle { X = 760, Y = 164, Width = 155, Height = 65 };
             GetValue(args, r);
         }
 
-        private void WaitGaugeBar_Callback(object sender, RectEventArgs args)
-        {
-            var r = new Rect { X = 620, Y = 310, Width = 180, Height = 170 };
-            GetValue(args, r);
-        }
 
-        private void GetValue(RectEventArgs args, Rect r)
+
+        private void GetValue(RectEventArgs args, Rectangle r)
         {
-            var b = _screenHelper.ScreenArea(FromRect(r));
+            var b = _screenHelper.ScreenArea(r);
 
             var bmp = new Bitmap(Convert.ToInt32(args.Rect.Width), Convert.ToInt32(args.Rect.Height),
                 PixelFormat.Format32bppArgb);

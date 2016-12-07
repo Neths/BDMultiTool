@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Threading;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Color = System.Drawing.Color;
-using Point = System.Windows.Point;
-using Size = System.Windows.Size;
+using Point = System.Drawing.Point;
+using Size = System.Drawing.Size;
 
 namespace BDMultiTool.Core
 {
@@ -34,53 +32,13 @@ namespace BDMultiTool.Core
                           BitmapSizeOptions.FromEmptyOptions());
         }
 
-        public void WaitRectangleColor(Rect canny, Color color, int colorThreshold, EventHandler<RectEventArgs> callback, int checkFrequency, ContourAcceptance acceptance)
-        {
-            while (true)
-            {
-                var img = _screenHelper.ScreenArea(new Rectangle(Convert.ToInt32(canny.X), Convert.ToInt32(canny.Y), Convert.ToInt32(canny.Width), Convert.ToInt32(canny.Height)));
-
-                var imgFiltered = FilterCaptcha(new Image<Bgr, byte>(img), new FilterParam(color, colorThreshold));
-
-                Clipboard.SetImage(ConvertBitmap(imgFiltered.Bitmap));
-
-                using (var contours = new VectorOfVectorOfPoint())
-                {
-                    CvInvoke.FindContours(imgFiltered, contours, null, RetrType.List, ChainApproxMethod.LinkRuns);
-
-                    for (var i = 0; i < contours.Size; i++)
-                    {
-                        var contour = contours[i];
-
-                        if (!acceptance.ValideSize(contour.Size))
-                            continue;
-
-                        var area = CvInvoke.MinAreaRect(contour).MinAreaRect();
-
-                        if (acceptance.ValideHeight(area.Height) && acceptance.ValideWidth(area.Width))
-                        {
-                            var aa = img.Clone(new Rectangle(area.X, area.Y, area.Width, area.Height), img.PixelFormat);
-                            Clipboard.SetImage(ConvertBitmap(aa));
-                            callback(this, new RectEventArgs(new Rect(new Point(area.X,area.Y),new Size(area.Width,area.Height))));
-                        }
-                    }
-                }
-
-                Thread.Sleep(checkFrequency);
-            }
-        }
-
-        public void GetTriangles(Rect canny, Color color, int colorThreshold, EventHandler<RectEventArgs> callback, int checkFrequency, ContourAcceptance acceptance)
+        public Rectangle GetRectangle(Rectangle canny, Color color, int colorThreshold, ContourAcceptance acceptance)
         {
             var img = _screenHelper.ScreenArea(new Rectangle(Convert.ToInt32(canny.X), Convert.ToInt32(canny.Y), Convert.ToInt32(canny.Width), Convert.ToInt32(canny.Height)));
-
-            Clipboard.SetImage(ConvertBitmap(img));
 
             var imgFiltered = FilterCaptcha(new Image<Bgr, byte>(img), new FilterParam(color, colorThreshold));
 
             Clipboard.SetImage(ConvertBitmap(imgFiltered.Bitmap));
-
-            var triangleList = new List<Triangle2DF>();
 
             using (var contours = new VectorOfVectorOfPoint())
             {
@@ -88,43 +46,38 @@ namespace BDMultiTool.Core
 
                 for (var i = 0; i < contours.Size; i++)
                 {
-                    //var contour = contours[i];
+                    var contour = contours[i];
 
-                    //if (!acceptance.ValideSize(contour.Size))
-                    //    continue;
+                    if (!acceptance.ValideSize(contour.Size))
+                        continue;
 
-                    //var area = CvInvoke.MinAreaRect(contour).MinAreaRect();
+                    var area = CvInvoke.MinAreaRect(contour).MinAreaRect();
 
-                    //if (acceptance.ValideHeight(area.Height) && acceptance.ValideWidth(area.Width))
-                    //{
-                    //    var aa = img.Clone(new Rectangle(area.X, area.Y, area.Width, area.Height), img.PixelFormat);
-                    //    Clipboard.SetImage(ConvertBitmap(aa));
-                    //    //callback(this, new RectEventArgs(new Rect(new Point(area.X, area.Y), new Size(area.Width, area.Height))));
-                    //}
-
-
-
-
-                    using (VectorOfPoint contour = contours[i])
-                    using (VectorOfPoint approxContour = new VectorOfPoint())
+                    if (acceptance.ValideHeight(area.Height) && acceptance.ValideWidth(area.Width))
                     {
-                        CvInvoke.ApproxPolyDP(contour, approxContour, CvInvoke.ArcLength(contour, true)*0.01, true);
-                        if (CvInvoke.ContourArea(approxContour, false) > 3)
-                            //only consider contours with area greater than 250
-                        {
-                            if (approxContour.Size == 3) //The contour has 3 vertices, it is a triangle
-                            {
-                                System.Drawing.Point[] pts = approxContour.ToArray();
-                                triangleList.Add(new Triangle2DF(
-                                    pts[0],
-                                    pts[1],
-                                    pts[2]
-                                ));
-                            }
-                        }
-
+                        //var aa = img.Clone(new Rectangle(area.X, area.Y, area.Width, area.Height), img.PixelFormat);
+                        //Clipboard.SetImage(ConvertBitmap(aa));
+                        return new Rectangle(new Point(area.X, area.Y), new Size(area.Width, area.Height));
                     }
                 }
+            }
+
+            return Rectangle.Empty;
+        }
+
+        public void WaitRectangleColor(Rectangle canny, Color color, int colorThreshold, EventHandler<RectEventArgs> callback, int checkFrequency, ContourAcceptance acceptance)
+        {
+            while (true)
+            {
+                var rectangle = GetRectangle(canny, color, colorThreshold, acceptance);
+
+                if (rectangle != Rectangle.Empty)
+                {
+                    callback(this, new RectEventArgs(rectangle));
+                    return;
+                }
+
+                Thread.Sleep(checkFrequency);
             }
         }
 
@@ -134,60 +87,84 @@ namespace BDMultiTool.Core
             return img.GetPixel(0,0);
         }
 
-
-
         public static Image<Gray, byte> FilterCaptcha(Image<Bgr, byte> imgSrc, FilterParam filter)
         {
             return imgSrc.InRange(filter.GetMinus(), filter.GetMaxi());
         }
 
-        public IEnumerable<Rect> GetAreasForImage(Image image)
+        public IEnumerable<Rectangle> GetAreasForImage(Image image)
         {
             throw new NotImplementedException();
         }
 
         public class FishTriangle
         {
-            readonly double[,] _rawData = new double[16,16];
+            readonly byte[,] _rawData = new byte[12,12];
 
             public FishTriangle(Image<Gray, byte> img, Point coord)
             {
-                for (int x = 0; x < 16; x++)
+                for (var x = 0; x < 12; x++)
                 {
-                    for (int y = 0; y < 16; y++)
+                    for (var y = 0; y < 12; y++)
                     {
-                        _rawData[(int)coord.X - 8 + x, (int)coord.Y - 8 + y] = img[x, y].Intensity;
+                        _rawData[y, x] = img.Data[(int)coord.Y - 6 + y, (int)coord.X - 6 + x , 0];
                     }
                 }
             }
 
             public Orientation GetOrientation()
             {
-                if (GetAvailable(0, 0))
+                if(!HaveData)
+                    return Orientation.None;
+
+                if (TopLeftAvailable)
                 {
-                    if (GetAvailable(14, 0))
-                    {
-                        return Orientation.Down;
-                    }
-                    return Orientation.Right;
+                    return TopRightAvailable ? Orientation.Down : Orientation.Right;
                 }
-                else
-                {
-                    if (GetAvailable(14, 0))
-                    {
-                        return Orientation.Left;
-                    }
-                    return Orientation.Up;
-                }
+
+                return TopRightAvailable ? Orientation.Left : Orientation.Up;
             }
 
-            private bool GetAvailable(int x, int y)
+            public bool HaveData => TopLeftAvailable || TopRightAvailable || BottomLeftAvailable || BottomRightAvailable;
+
+            public bool TopLeftAvailable => GetAvailable(0, 0);
+
+            public bool TopRightAvailable => GetAvailable(0, 8);
+
+            public bool BottomLeftAvailable => GetAvailable(8, 0);
+
+            public bool BottomRightAvailable => GetAvailable(8, 8);
+
+            private bool GetAvailable(int y, int x)
             {
-                var d = _rawData[x, y] + _rawData[x + 1, y] + _rawData[x, y - 1] + _rawData[x + 1, y - 1];
+                //var d = _rawData[x, y] + _rawData[x + 1, y] + _rawData[x, y - 1] + _rawData[x + 1, y - 1];
 
-                var dd = d / 4;
+                int s = 0;
 
-                return dd >= 0.5;
+                for (int i = 0; i < 4; i++)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        s += _rawData[y + i, x + j] > 0 ? 1 : 0;
+                    }
+                }
+
+                return s > 0;
+            }
+
+            public Bitmap GetBitmap()
+            {
+                var img = new Image<Gray,byte>(new System.Drawing.Size(12,12));
+
+                for (int i = 0; i < 12; i++)
+                {
+                    for (int j = 0; j < 12; j++)
+                    {
+                        img.Data[i, j, 0] = Convert.ToByte(_rawData[i, j]);
+                    }
+                }
+
+                return img.ToBitmap();
             }
 
             public enum Orientation
