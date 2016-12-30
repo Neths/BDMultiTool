@@ -1,0 +1,19 @@
+﻿<Window x:Class="BDMultiTool.DebugWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BDMultiTool"
+        mc:Ignorable="d"
+        Title="DebugWindow" Height="382.029" Width="497.699">
+    <Grid Margin="0,0,0,-31">
+        <Image x:Name="imgWaitStartFishingRaw" HorizontalAlignment="Left" Height="100" Margin="40,10,0,0" VerticalAlignment="Top" Width="200"/>
+        <Image x:Name="imgWaitStartFishingFilter" HorizontalAlignment="Left" Height="100" Margin="264,10,0,0" VerticalAlignment="Top" Width="200"/>
+        <Ellipse x:Name="ptWaitFishingStart" Fill="Red" HorizontalAlignment="Left" Height="15" Margin="15,41,0,0" Stroke="Black" VerticalAlignment="Top" Width="14"/>
+        <Ellipse x:Name="ptFishingGauge" Fill="Red" HorizontalAlignment="Left" Height="15" Margin="15,114,0,0" Stroke="Black" VerticalAlignment="Top" Width="14"/>
+        <Ellipse x:Name="ptFishingGame" Fill="Red" HorizontalAlignment="Left" Height="15" Margin="15,174,0,0" Stroke="Black" VerticalAlignment="Top" Width="14"/>
+        <Image x:Name="imgFishingGameRaw" HorizontalAlignment="Left" Height="52" Margin="56,155,0,0" VerticalAlignment="Top" Width="408"/>
+        <Image x:Name="imgFishingGameFilter" HorizontalAlignment="Left" Height="52" Margin="56,212,0,0" VerticalAlignment="Top" Width="408"/>
+
+    </Grid>
+</Window>

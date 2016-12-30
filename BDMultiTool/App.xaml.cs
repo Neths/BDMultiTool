@@ -21,8 +21,11 @@ namespace BDMultiTool
 
         public static volatile bool minimized;
 
-        public MyApp(IWindowAttacher windowAttacher, INotifier notifier)
+        public MyApp(IWindowAttacher windowAttacher, INotifier notifier, IScreenHelper screenHelper)
         {
+            var d = new DebugWindow(screenHelper);
+            d.Show();
+
             _windowAttacher = windowAttacher;
             _notifier = notifier;
 

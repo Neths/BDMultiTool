@@ -8,6 +8,13 @@ namespace BDMultiTool.Core
     {
         void WaitRectangleColor(Rectangle canny, Color color, int colorThreshold, EventHandler<RectEventArgs> callback, int checkFrequency, RegonizeEngine.ContourAcceptance acceptance);
         Color GetColor(Point point);
+        Color GetColor(Bitmap img, Point point);
         IEnumerable<Rectangle> GetAreasForImage(Image image);
+        Rectangle GetRectangle(Rectangle canny, Color color, int colorThreshold,
+            RegonizeEngine.ContourAcceptance acceptance);
+        Rectangle GetRectangle(Bitmap img, Rectangle canny, Color color, int colorThreshold,
+            RegonizeEngine.ContourAcceptance acceptance);
+        IEnumerable<Rectangle> GetAllRectangles(Bitmap img, Rectangle canny, Color color, int colorThreshold,
+            RegonizeEngine.ContourAcceptance acceptance);
     }
 }

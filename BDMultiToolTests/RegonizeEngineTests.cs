@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using BDMultiTool;
 using BDMultiTool.Core;
@@ -84,7 +85,7 @@ namespace BDMultiToolTests
         [Apartment(ApartmentState.STA)]
         [TestCase("b.jpg", 87, 127)]
         [TestCase("c.jpg", 79, 110)]
-        [TestCase("d.jpg", 79, 110)]
+        [TestCase("d.jpg", 79, 125)]
         public void SearchFishingGameTimeGauge(string imageName, int x, int y)
         {
             _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\ImageTest\{imageName}"));
@@ -164,9 +165,9 @@ namespace BDMultiToolTests
 
             _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\ImageTest\b.jpg"));
 
-            var r = new Rect { X = pointOfTimeGauge.X - 35, Y = pointOfTimeGauge.Y - 45, Width = 380, Height = 17 };
+            var r = new Rectangle { X = pointOfTimeGauge.X - 35, Y = pointOfTimeGauge.Y - 45, Width = 380, Height = 17 };
 
-            var filteredImage = RegonizeEngine.FilterCaptcha(new Image<Bgr, byte>(_screenHelper.ScreenArea(FromRect(r))),
+            var filteredImage = RegonizeEngine.FilterImage(new Image<Bgr, byte>(_screenHelper.ScreenArea(r)),
                 new RegonizeEngine.FilterParam(Color.FromArgb(0, 85, 255), 100));
 
             var t = new RegonizeEngine.FishTriangle(filteredImage,new System.Drawing.Point(xCoord,8));
@@ -176,10 +177,106 @@ namespace BDMultiToolTests
             Assert.AreEqual(orientation, t.GetOrientation());
         }
 
-        private void WaitTriangles_Callback(object sender, RectEventArgs args)
+        [Apartment(ApartmentState.STA)]
+        [TestCase("g.jpg")]
+        [TestCase("f.jpg")]
+        public void GetWindow(string imageName)
         {
-            var r = new Rectangle { X = 760, Y = 164, Width = 155, Height = 65 };
-            GetValue(args, r);
+            _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\ImageTest\{imageName}"));
+            var engine = new RegonizeEngine(_screenHelper);
+
+            var r = new Rectangle { X = 700, Y = 45, Width = 500, Height = 600};
+            var color = Color.FromArgb(20, 20, 20);
+            var seuil = 20;
+
+            var tmp = _screenHelper.ScreenArea(r);
+            Clipboard.SetImage(ConvertBitmap(tmp));
+
+            var filteredImage = RegonizeEngine.FilterImage(new Image<Bgr, byte>(tmp), new RegonizeEngine.FilterParam(color, seuil));
+            Clipboard.SetImage(ConvertBitmap(filteredImage.Bitmap));
+
+            var rr = engine.GetAllRectangles(tmp, r, color, seuil, new RegonizeEngine.ContourAcceptance
+            {
+                Height = 150, HeightOffset = 150, Width = 330, WidthOffset = 100, Size = 500, SizeOffset = 500
+            });
+
+            var zz = rr.OrderByDescending(a => a.Height + a.Width).Take(10).ToList();
+
+            using (var g = Graphics.FromImage(tmp))
+            {
+                g.DrawRectangles(new Pen(Color.Red, 2), zz.ToArray());
+            }
+
+            Clipboard.SetImage(ConvertBitmap(tmp));
+        }
+
+        [Apartment(ApartmentState.STA)]
+        [TestCase("h.jpg", 7)]
+        [TestCase("i.jpg", 3)]
+        public void CheckDispo(string imageName, int expectedPresent)
+        {
+            _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\ImageTest\{imageName}"));
+            var engine = new RegonizeEngine(_screenHelper);
+
+            var b = Enumerable.Range(1, 7).Select(i => i*62 + 338).Select(y => CheckState(engine, y)).ToList();
+
+            Assert.AreEqual(expectedPresent, b.Count(s => s));
+        }
+
+        private bool CheckState(RegonizeEngine engine, int y)
+        {
+            var r = new Rectangle {X = 782, Y = y, Width = 30, Height = 17};
+            var color = Color.FromArgb(190, 190, 170);
+            var seuil = 80;
+
+            var tmp = _screenHelper.ScreenArea(r);
+
+            var rr = engine.GetAllRectangles(tmp, r, color, seuil, new RegonizeEngine.ContourAcceptance
+            {
+                Height = 150,
+                HeightOffset = 150,
+                Width = 330,
+                WidthOffset = 330,
+                Size = 500,
+                SizeOffset = 500
+            });
+
+            return rr.Any();
+        }
+
+        [Apartment(ApartmentState.STA)]
+        [TestCase("k.jpg", 2)]
+        [TestCase("i.jpg", 3)]
+        [TestCase("j.jpg", 7)]
+        public void CheckButtonDispo(string imageName, int expectedPresent)
+        {
+            _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\ImageTest\{imageName}"));
+            var engine = new RegonizeEngine(_screenHelper);
+
+            var b = Enumerable.Range(1, 7).Select(i => i * 62 + 309).Select(y => CheckButton(engine, y)).ToList();
+
+            Assert.AreEqual(expectedPresent, b.Count(s => s));
+        }
+
+        private bool CheckButton(RegonizeEngine engine, int y)
+        {
+            var r = new Rectangle { X = 1300, Y = y, Width = 62, Height = 46 };
+            var color = Color.FromArgb(200, 200, 200);
+            var seuil = 60;
+
+            var tmp = _screenHelper.ScreenArea(r);
+
+            var rr = engine.GetAllRectangles(tmp, r, color, seuil, new RegonizeEngine.ContourAcceptance
+            {
+                Height = 150,
+                HeightOffset = 150,
+                Width = 330,
+                WidthOffset = 330,
+                Size = 500,
+                SizeOffset = 500
+            });
+
+            return rr.Any();
         }
 
         private void WaitFishingStart_Callback(object sender, RectEventArgs args)
@@ -214,11 +311,6 @@ namespace BDMultiToolTests
                           IntPtr.Zero,
                           Int32Rect.Empty,
                           BitmapSizeOptions.FromEmptyOptions());
-        }
-
-        private Rectangle FromRect(Rect rect)
-        {
-            return new Rectangle(Convert.ToInt32(rect.X), Convert.ToInt32(rect.Y), Convert.ToInt32(rect.Width), Convert.ToInt32(rect.Height));
         }
     }
 }

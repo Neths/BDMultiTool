@@ -126,6 +126,10 @@
     <Compile Include="Core\PInvoke\IWindowAttacher.cs" />
     <Compile Include="Core\PInvoke\User32.cs" />
     <Compile Include="Core\RegonizeEngine.cs" />
+    <Compile Include="Engines\MarketEngine.cs" />
+    <Compile Include="FishDebugWindow.xaml.cs">
+      <DependentUpon>FishDebugWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Engines\FishingEngine.cs" />
     <Compile Include="Engines\IEngine.cs" />
     <Compile Include="Core\IInputSender.cs" />
@@ -182,6 +186,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="FishDebugWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Fishing\FishingLog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

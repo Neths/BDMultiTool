@@ -32,13 +32,13 @@ namespace BDMultiTool.Core
                           BitmapSizeOptions.FromEmptyOptions());
         }
 
-        public Rectangle GetRectangle(Rectangle canny, Color color, int colorThreshold, ContourAcceptance acceptance)
+        public Rectangle GetRectangle(Bitmap img, Rectangle canny, Color color, int colorThreshold, ContourAcceptance acceptance)
         {
-            var img = _screenHelper.ScreenArea(new Rectangle(Convert.ToInt32(canny.X), Convert.ToInt32(canny.Y), Convert.ToInt32(canny.Width), Convert.ToInt32(canny.Height)));
+            DebugWindow.SetImageStartFishingRaw((Bitmap)img.Clone());
 
-            var imgFiltered = FilterCaptcha(new Image<Bgr, byte>(img), new FilterParam(color, colorThreshold));
+            var imgFiltered = FilterImage(new Image<Bgr, byte>(img), new FilterParam(color, colorThreshold));
 
-            Clipboard.SetImage(ConvertBitmap(imgFiltered.Bitmap));
+            DebugWindow.SetImageStartFishingFiltered(imgFiltered.ToBitmap());
 
             using (var contours = new VectorOfVectorOfPoint())
             {
@@ -65,6 +65,45 @@ namespace BDMultiTool.Core
             return Rectangle.Empty;
         }
 
+        public IEnumerable<Rectangle> GetAllRectangles(Bitmap img, Rectangle canny, Color color, int colorThreshold,
+            ContourAcceptance acceptance)
+        {
+            var imgFiltered = FilterImage(new Image<Bgr, byte>(img), new FilterParam(color, colorThreshold));
+
+            var result = new List<Rectangle>();
+
+            using (var contours = new VectorOfVectorOfPoint())
+            {
+                CvInvoke.FindContours(imgFiltered, contours, null, RetrType.List, ChainApproxMethod.LinkRuns);
+
+                for (var i = 0; i < contours.Size; i++)
+                {
+                    var contour = contours[i];
+
+                    if (!acceptance.ValideSize(contour.Size))
+                        continue;
+
+                    var area = CvInvoke.MinAreaRect(contour).MinAreaRect();
+
+                    if (acceptance.ValideHeight(area.Height) && acceptance.ValideWidth(area.Width))
+                    {
+                        //var aa = img.Clone(new Rectangle(area.X, area.Y, area.Width, area.Height), img.PixelFormat);
+                        //Clipboard.SetImage(ConvertBitmap(aa));
+                        //return new Rectangle(new Point(area.X, area.Y), new Size(area.Width, area.Height));
+
+                        result.Add(new Rectangle(new Point(area.X, area.Y), new Size(area.Width, area.Height)));
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public Rectangle GetRectangle(Rectangle canny, Color color, int colorThreshold, ContourAcceptance acceptance)
+        {
+            return GetRectangle(_screenHelper.ScreenArea(canny), canny, color, colorThreshold, acceptance);
+        }
+
         public void WaitRectangleColor(Rectangle canny, Color color, int colorThreshold, EventHandler<RectEventArgs> callback, int checkFrequency, ContourAcceptance acceptance)
         {
             while (true)
@@ -81,13 +120,18 @@ namespace BDMultiTool.Core
             }
         }
 
-        public Color GetColor(System.Drawing.Point point)
+        public Color GetColor(Point point)
         {
-            var img = _screenHelper.ScreenArea(new Rectangle(Convert.ToInt32(point.X), Convert.ToInt32(point.Y), 1, 1));
-            return img.GetPixel(0,0);
+            var img = _screenHelper.ScreenArea(new Rectangle(point.X, point.Y, 1, 1));
+            return GetColor(img, point);
         }
 
-        public static Image<Gray, byte> FilterCaptcha(Image<Bgr, byte> imgSrc, FilterParam filter)
+        public Color GetColor(Bitmap img, Point point)
+        {
+            return img.GetPixel(0, 0);
+        }
+
+        public static Image<Gray, byte> FilterImage(Image<Bgr, byte> imgSrc, FilterParam filter)
         {
             return imgSrc.InRange(filter.GetMinus(), filter.GetMaxi());
         }

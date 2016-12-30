@@ -7,6 +7,8 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
 using BDMultiTool.Core;
+using Emgu.CV;
+using Emgu.CV.Structure;
 using Point = System.Drawing.Point;
 
 namespace BDMultiTool.Engines
@@ -15,6 +17,7 @@ namespace BDMultiTool.Engines
     {
         private readonly IRegonizeArea _regonizeArea;
         private readonly IInputSender _inputSender;
+        private readonly IScreenHelper _screenHelper;
         private bool _running = false;
         private Thread _thread;
 
@@ -24,10 +27,13 @@ namespace BDMultiTool.Engines
 
         private readonly List<Keys> _shortcutList = new List<Keys> { Keys.Oem2, Keys.Oem3 };
 
-        public FishingEngine(IRegonizeArea regonizeArea, IInputSender inputSender)
+        private readonly  List<int> _xCoordOfFishingKeyIndicators = new List<int> { 8, 43, 78, 113, 148, 183, 218, 253, 288, 323 };
+
+        public FishingEngine(IRegonizeArea regonizeArea, IInputSender inputSender, IScreenHelper screenHelper)
         {
             _regonizeArea = regonizeArea;
             _inputSender = inputSender;
+            _screenHelper = screenHelper;
         }
 
         public void Start()
@@ -85,18 +91,16 @@ namespace BDMultiTool.Engines
             Thread.Sleep(2000);
             _inputSender.SendKeys(Keys.Space);
 
+            Thread.Sleep(5000);
+
             WaitFishingStart();
         }
 
         private void WaitFishingStart()
         {
-            //Search Space Rectangle for starting fishing cycle
-            var startFishingArea = new Rectangle { X = 760, Y = 164, Width = 153, Height = 65 };
-            //new Rectangle { X = 760, Y = 164, Width = 155, Height = 65 };
+            var startFishingArea = new Rectangle { X = 800, Y = 130, Width = 400, Height = 300 };
 
-            //RGB : 164/136/26
-
-            _regonizeArea.WaitRectangleColor(startFishingArea, Color.FromArgb(164,136,26), 20, WaitFishingStart_Callback, 5000, new RegonizeEngine.ContourAcceptance() {Size = 10, Width = 100, Height = 50});
+            _regonizeArea.WaitRectangleColor(startFishingArea, Color.FromArgb(140,110,10), 80, WaitFishingStart_Callback, 5000, new RegonizeEngine.ContourAcceptance { Size = 150, SizeOffset = 30, Width = 100, WidthOffset = 50, Height = 50, HeightOffset = 20 });
         }
 
         private void WaitFishingStart_Callback(object sender, RectEventArgs args)
@@ -109,37 +113,38 @@ namespace BDMultiTool.Engines
         private void WaitFishingGaugeInBlueArea()
         {
             //Search when fishing gauge are in blue area
-            var fishingGauge = new Rect { X = 930, Y = 410, Width = 5, Height = 10 };
+            //var fishingGauge = new Rect { X = 930, Y = 410, Width = 5, Height = 10 };
+            var refColor = new RegonizeEngine.ColorAcceptance { BaseColor = Color.FromArgb(93, 142, 172), Offset = 30 };
+            var gaugePoint = new Point(1060, 415);
 
-            //_regonizeArea.GetColor(new Point())
+            while (true)
+            {
+                var color = _regonizeArea.GetColor(gaugePoint);
+                if (refColor.Validate(color))
+                {
+                    WaitFishingGaugeInBlueArea_Callback(this,EventArgs.Empty);
+                    break;
+                }
 
-            //RGB: 93/142/172
-            //_regonizeArea.WaitRectangleColor(fishingGauge, Color.FromArgb(93,142,172), 20, WaitFishingGaugeInBlueArea_Callback, 100, new RegonizeEngine.ContourAcceptance() { Size = 10, Width = 100, Height = 50 });
+                Thread.Sleep(10);
+            }
         }
 
-        private void WaitFishingGaugeInBlueArea_Callback(object sender, RectEventArgs args)
+        private void WaitFishingGaugeInBlueArea_Callback(object sender, EventArgs args)
         {
+            DebugWindow.SetPointFishingGauge(true);
             Debug.Write("fish gauge in blue area ==> press space");
             _inputSender.SendKeys(Keys.Space);
-            //WaitDisplayFishingMinigame();
+            WaitDisplayFishingMinigame();
         }
 
-        //TODO
         private void WaitDisplayFishingMinigame()
         {
-            //Wait fish mini game dispay with with characters on top
-            var fishingMiniGameArea = new Rectangle { X = 10, Y = 10, Width = 80, Height = 40 };
-
-            _regonizeArea.WaitRectangleColor(fishingMiniGameArea, Color.White, 20, WaitDisplayFishingMinigame_Callback, 100, new RegonizeEngine.ContourAcceptance() { Size = 10, Width = 100, Height = 50 });
-        }
-
-        private void WaitDisplayFishingMinigame_Callback(object sender, RectEventArgs args)
-        {
+            Thread.Sleep(2000);
             Debug.Write("Fishing mini game displayed ==> resolve game");
             SolveFishingMiniGame();
         }
 
-        //TODO
         private void SolveFishingMiniGame()
         {
             //Resolve Mini game
@@ -173,49 +178,68 @@ namespace BDMultiTool.Engines
 
         private void SolveMiniGame(EventHandler<KeysEventArgs> fishingStep4Callback)
         {
-            var startPointOfTimeGauge = FindTimeGauge(_fishingMiniGameArea);
+            var gameArea = new Rectangle { X = 620, Y = 310, Width = 180, Height = 170 };
+            var img = _screenHelper.ScreenArea(gameArea);
 
-            var triangleAreas = GetTriangleArea(startPointOfTimeGauge).ToList();
+            DebugWindow.SetImageFishingGameRaw(img);
 
-            var colorFilter = GetColorNoise(triangleAreas.First());
+            var startPointOfTimeGauge = FindTimeGauge(img);
 
-            var orientedTriangles = CalculateOrientation(triangleAreas, colorFilter);
+            var colorFilter = GetColorNoise(img, startPointOfTimeGauge);
 
-            var keys = orientedTriangles.Select(GetKeyFromOrientedTriangle).ToList();
+            var filteredImage = RegonizeEngine.FilterImage(new Image<Bgr, byte>(img),
+                new RegonizeEngine.FilterParam(colorFilter, 100));
+
+            DebugWindow.SetImageFishingGameFiltered(filteredImage.Bitmap);
+
+            var keys = _xCoordOfFishingKeyIndicators
+                .Select(x => new RegonizeEngine.FishTriangle(filteredImage, new Point(x, 8)))
+                .Select(t => t.GetOrientation())
+                .Where(o => o != RegonizeEngine.FishTriangle.Orientation.None)
+                .Select(GetKeyFromOrientedTriangle)
+                .ToList();
 
             fishingStep4Callback(this,new KeysEventArgs(keys));
         }
 
-        //TODO
-        private IEnumerable<Rect> GetTriangleArea(Point startPointOfTimeGauge)
-        {
-            throw new NotImplementedException();
-        }
-
-        //TODO
-        private Point FindTimeGauge(Rect fishingMiniGameArea)
+        private Point FindTimeGauge(Bitmap img)
         {
             //620-310 / 140-170
+            var r = new Rectangle { X = 620, Y = 310, Width = 180, Height = 170 };
 
-            throw new NotImplementedException();
+            var timeGaugeArea = _regonizeArea.GetRectangle(img, r, Color.FromArgb(255, 255, 255), 80,
+                new RegonizeEngine.ContourAcceptance
+                {
+                    Size = 10,
+                    SizeOffset = 5,
+                    Width = 70,
+                    WidthOffset = 30,
+                    Height = 4,
+                    HeightOffset = 2
+                });
+
+            return new Point(timeGaugeArea.X,timeGaugeArea.Y);
         }
 
-        //TODO
-        private Keys GetKeyFromOrientedTriangle(OrientedTriangle orientedTriangle)
+        private static Keys GetKeyFromOrientedTriangle(RegonizeEngine.FishTriangle.Orientation orientation)
         {
-            throw new NotImplementedException();
+            switch (orientation)
+            {
+                case RegonizeEngine.FishTriangle.Orientation.Up:
+                    return Keys.Z;
+                case RegonizeEngine.FishTriangle.Orientation.Down:
+                    return Keys.S;
+                case RegonizeEngine.FishTriangle.Orientation.Left:
+                    return Keys.Q;
+                case RegonizeEngine.FishTriangle.Orientation.Right:
+                default:
+                    return Keys.D;
+            }
         }
 
-        //TODO
-        private IEnumerable<OrientedTriangle> CalculateOrientation(IEnumerable<Rect> triangleAreas , Color colorFilter)
+        private Color GetColorNoise(Bitmap img, Point pointOfTimeGauge)
         {
-            throw new NotImplementedException();
-        }
-
-        //TODO
-        private Color GetColorNoise(Rect triangleArea)
-        {
-            throw new NotImplementedException();
+            return _regonizeArea.GetColor(img, new Point(pointOfTimeGauge.X - 35 + 8, pointOfTimeGauge.Y - 45 + 8));
         }
 
         private void Looting(EventHandler<EventArgs> waitLootingCallback)

@@ -67,9 +67,12 @@ namespace BDMultiTool
             {
                 var windowAttacher = container.GetInstance<IWindowAttacher>();
                 var notifier = container.GetInstance<INotifier>();
+                var screenHelper = container.GetInstance<IScreenHelper>();
 
-                var app = new MyApp(windowAttacher, notifier);
+                var app = new MyApp(windowAttacher, notifier, screenHelper);
                 app.Run();
+
+
             }
             catch (Exception ex)
             {
