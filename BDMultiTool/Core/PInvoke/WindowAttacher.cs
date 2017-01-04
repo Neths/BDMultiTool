@@ -1,29 +1,28 @@
 ﻿using BDMultiTool.Core.Notification;
-using InputManager;
 using System;
 using System.Diagnostics;
-using System.Threading;
+using System.Drawing;
 using System.Windows;
-using NLog;
+using BDMultiTool.Config;
+using SimpleInjector;
+using Size = System.Drawing.Size;
 
 namespace BDMultiTool.Core.PInvoke
 {
     public class WindowAttacher : IWindowAttacher
     {
-        private IntPtr _windowHandle;
+        public IntPtr WindowHandle { get; private set; }
+        public Size Size { get; private set; }
+        public ScreenConfig Config { get; private set; }
         private WindowObserver _windowEventHook;
-        private readonly IOverlay _overlay;
+        private IOverlay _overlay;
         private readonly INotifier _notifier;
-        private readonly ILogger _logger;
-        private const uint WmKeydown = 0x100;
-        private const uint WmKeyup = 0x101;
-        private const uint WmSettext = 0x000c;
+        private readonly Container _container;
 
-        public WindowAttacher(IOverlay overlay,INotifier notifier,  ILogger logger)
+        public WindowAttacher(INotifier notifier, Container container)
         {
-            _logger = logger;
-            _overlay = overlay;
             _notifier = notifier;
+            _container = container;
         }
 
         public void Attach(IntPtr windowHandle)
@@ -32,17 +31,27 @@ namespace BDMultiTool.Core.PInvoke
             {
                 //_logger.Error("Make sure BDO isn't initially minimized and this application is running as admin.");
                 //Debug.WriteLine("could not pinvoke!");
-                //System.Windows.MessageBox.Show("Make sure BDO isn't initially minimized and this application is running as admin.", "Could not attach to BDO", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Make sure BDO isn't initially minimized and this application is running as admin.", "Could not attach to BDO", MessageBoxButton.OK, MessageBoxImage.Error);
                 MyApp.exit();
             }
             else
             {
-                _windowHandle = windowHandle;
+                WindowHandle = windowHandle;
+                var r = GetWindowArea();
+                Size = new Size
+                {
+                    Width = r.Width,
+                    Height = r.Height
+                };
+
+                Config = ScreenConfig.LoadFromFile($"{Size.Width}x{Size.Height}");
+
+                _overlay = new Overlay(_notifier, _container);
 
                 _windowEventHook = new WindowObserver(windowHandle, ObservedWindowEvent);
                 User32.SetForegroundWindow(windowHandle);
 
-                _overlay.Update(GetWindowArea());
+                _overlay.Update(r);
                 _overlay.Topmost = true;
             }
         }
@@ -82,25 +91,6 @@ namespace BDMultiTool.Core.PInvoke
             }
         }
 
-
-        public void SendKeypress(System.Windows.Forms.Keys keyToSend) {
-            User32.SetForegroundWindow(_windowHandle);
-            Keyboard.KeyPress(keyToSend);
-            Thread.Sleep(50);
-        }
-
-        public void SendKeyDown(System.Windows.Forms.Keys keyToSend) {
-            User32.SetForegroundWindow(_windowHandle);
-            Keyboard.KeyDown(keyToSend);
-            Thread.Sleep(50);
-        }
-
-        public void SendKeyUp(System.Windows.Forms.Keys keyToSend) {
-            User32.SetForegroundWindow(_windowHandle);
-            Keyboard.KeyUp(keyToSend);
-            Thread.Sleep(50);
-        }
-
         public static IntPtr GetHandleByWindowTitleBeginningWith(String title) {
             foreach (Process currentProcess in Process.GetProcesses()) {
                 if(currentProcess.MainWindowTitle.StartsWith(title)) {
@@ -112,12 +102,12 @@ namespace BDMultiTool.Core.PInvoke
             return IntPtr.Zero;
         }
 
-        public Rect GetWindowArea()
+        public Rectangle GetWindowArea()
         {
             User32.Rect rectStructure;
-            User32.GetWindowRect(_windowHandle, out rectStructure);
+            User32.GetWindowRect(WindowHandle, out rectStructure);
 
-            return new Rect
+            return new Rectangle
             {
                 X = rectStructure.Left,
                 Y = rectStructure.Top,

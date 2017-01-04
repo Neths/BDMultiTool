@@ -49,6 +49,8 @@ namespace BDMultiTool.Engines
             _thread.Abort();
         }
 
+        public bool Running => _running;
+
         private void Execute()
         {
             while (_running)

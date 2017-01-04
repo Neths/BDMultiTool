@@ -1,33 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using BDMultiTool.Engines;
 
 namespace BDMultiTool.Market
 {
     /// <summary>
     /// Interaction logic for Market.xaml
     /// </summary>
-    public partial class Market : UserControl
+    public partial class Market : UserControl, IMarketWindow
     {
-        public Market()
+        private readonly IEngine _engine;
+
+        public Market(IEngine engine)
         {
+            _engine = engine;
             InitializeComponent();
         }
 
         private void StartStopButton_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            _engine.Start();
         }
 
         private void customButton_MouseEnter(object sender, MouseEventArgs e)
@@ -39,5 +33,9 @@ namespace BDMultiTool.Market
         {
             ((Button)sender).Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 249, 60, 64));
         }
+    }
+
+    public interface IMarketWindow
+    {
     }
 }

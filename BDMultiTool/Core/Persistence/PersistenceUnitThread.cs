@@ -7,28 +7,28 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace BDMultiTool.Persistence {
-    class PersistenceUnitThread : MultiToolMarkUpThread {
-        public static volatile bool keepWorking;
-        public static volatile PersistenceUnit persistenceUnit;
+    //class PersistenceUnitThread : MultiToolMarkUpThread {
+    //    public static volatile bool keepWorking;
+    //    public static volatile PersistenceUnit persistenceUnit;
 
-        static PersistenceUnitThread() {
-            keepWorking = true;
-            persistenceUnit = new PersistenceUnit();
-            ThreadManager.registerThread(new Thread(new PersistenceUnitThread().work));
-        }
+    //    static PersistenceUnitThread() {
+    //        keepWorking = true;
+    //        persistenceUnit = new PersistenceUnit();
+    //        ThreadManager.registerThread(new Thread(new PersistenceUnitThread().work));
+    //    }
 
-        public PersistenceUnitThread() {
+    //    public PersistenceUnitThread() {
 
-        }
+    //    }
 
-        public void work() {
-            while (keepWorking) {
-                if (MyApp.appCoreIsInitialized) {
-                    persistenceUnit.persist();
-                    Thread.Sleep(1000);
-                } 
+    //    public void work() {
+    //        while (keepWorking) {
+    //            if (MyApp.appCoreIsInitialized) {
+    //                persistenceUnit.persist();
+    //                Thread.Sleep(1000);
+    //            } 
 
-            }
-        }
-    }
+    //        }
+    //    }
+    //}
 }

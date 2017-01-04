@@ -8,24 +8,28 @@ namespace BDMultiTool.Macros {
     /// Interaction logic for MacroItem.xaml
     /// </summary>
     public partial class MacroItem : UserControl {
-        public MacroItem() {
+        private readonly IMacroManager _macroManager;
+
+        public MacroItem(IMacroManager macroManager)
+        {
+            _macroManager = macroManager;
             InitializeComponent();
         }
 
         private void deleteButton_Click(object sender, RoutedEventArgs e) {
-            MacroManagerThread.macroManager.removeMacroByName((this.DataContext as MacroItemModel).MacroName);
+            _macroManager.removeMacroByName((this.DataContext as MacroItemModel).MacroName);
 
         }
 
         private void resetButton_Click(object sender, RoutedEventArgs e) {
-            MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).ResetAll();
+            _macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).ResetAll();
             (this.DataContext as MacroItemModel).Paused = true;
             (this.DataContext as MacroItemModel).NotPaused = false;
         }
 
         private void playButton_Click(object sender, RoutedEventArgs e) {
-            MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Resume();
-            if(!MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Paused) {
+            _macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Resume();
+            if(!_macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Paused) {
                 (this.DataContext as MacroItemModel).Paused = false;
                 (this.DataContext as MacroItemModel).NotPaused = true;
             }
@@ -33,8 +37,8 @@ namespace BDMultiTool.Macros {
         }
 
         private void pauseButton_Click(object sender, RoutedEventArgs e) {
-            MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Pause();
-            if(MacroManagerThread.macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Paused) {
+            _macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Pause();
+            if(_macroManager.getMacroByName((this.DataContext as MacroItemModel).MacroName).Paused) {
                 (this.DataContext as MacroItemModel).Paused = true;
                 (this.DataContext as MacroItemModel).NotPaused = false;
             }

@@ -10,5 +10,6 @@ namespace BDMultiTool.Core
         void SendKeys(IEnumerable<Keys> keys);
         void MouseRightClickTo(Point point);
         void MouseLeftClickTo(Point point);
+        void MouseMoveTo(Point point);
     }
 }

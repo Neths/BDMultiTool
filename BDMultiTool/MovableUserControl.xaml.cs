@@ -1,5 +1,4 @@
-﻿using BDMultiTool.Macros;
-using BDMultiTool.Persistence;
+﻿using BDMultiTool.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -169,26 +168,26 @@ namespace BDMultiTool {
         }
 
         public void tryLoadCurrentWindow() {
-            PersistenceContainer temporaryPersistenceContainer = PersistenceUnitThread.persistenceUnit.loadContainerByKey(this.subWindowTitle.Content.ToString() + this.GetType().Name);
-            if(temporaryPersistenceContainer != null) {
-                this.Width = Double.Parse(temporaryPersistenceContainer.content.Element("width").Value);
-                this.Height = Double.Parse(temporaryPersistenceContainer.content.Element("height").Value);
-                translateBy(Double.Parse(temporaryPersistenceContainer.content.Element("xOffset").Value), 
-                            Double.Parse(temporaryPersistenceContainer.content.Element("yOffset").Value));
-            }
+            //PersistenceContainer temporaryPersistenceContainer = PersistenceUnitThread.persistenceUnit.loadContainerByKey(this.subWindowTitle.Content.ToString() + this.GetType().Name);
+            //if(temporaryPersistenceContainer != null) {
+            //    this.Width = Double.Parse(temporaryPersistenceContainer.content.Element("width").Value);
+            //    this.Height = Double.Parse(temporaryPersistenceContainer.content.Element("height").Value);
+            //    translateBy(Double.Parse(temporaryPersistenceContainer.content.Element("xOffset").Value), 
+            //                Double.Parse(temporaryPersistenceContainer.content.Element("yOffset").Value));
+            //}
         }
 
         public void persitCurrentWindow() {
-            if(shouldSave) {
-                PersistenceUnitThread.persistenceUnit.addToPersistenceBuffer(PersistenceUnit.createPersistenceContainer(this.subWindowTitle.Content.ToString() + this.GetType().Name,
-                                                                                                                        this.GetType().Name,
-                                                                                                                        new String[][] {
-                                                                                                                        new String[] { "height", this.Height.ToString() },
-                                                                                                                        new String[] { "width", this.Width.ToString() },
-                                                                                                                        new String[] { "xOffset", anchorPoint.X.ToString() },
-                                                                                                                        new String[] { "yOffset", anchorPoint.Y.ToString() }
-                                                                                                                        }));
-            }
+            //if(shouldSave) {
+            //    PersistenceUnitThread.persistenceUnit.addToPersistenceBuffer(PersistenceUnit.createPersistenceContainer(this.subWindowTitle.Content.ToString() + this.GetType().Name,
+            //                                                                                                            this.GetType().Name,
+            //                                                                                                            new String[][] {
+            //                                                                                                            new String[] { "height", this.Height.ToString() },
+            //                                                                                                            new String[] { "width", this.Width.ToString() },
+            //                                                                                                            new String[] { "xOffset", anchorPoint.X.ToString() },
+            //                                                                                                            new String[] { "yOffset", anchorPoint.Y.ToString() }
+            //                                                                                                            }));
+            //}
 
             
         }

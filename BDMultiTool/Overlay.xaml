@@ -50,23 +50,12 @@
                 </ItemsPanelTemplate>
             </Menu.ItemsPanel>
 
-            <MenuItem x:Name="FishMenu" Header="Fishing" Click="FishMenu_OnClick">
+            <MenuItem x:Name="MarketMenu" Header="Market" Click="MarketMenu_OnClick">
                 <MenuItem.Icon>
                     <Image Source="Resources/macroMenuIcon.png"></Image>
                 </MenuItem.Icon>
             </MenuItem>
 
-            <MenuItem x:Name="MacrosMenu" Header="Macros" Click="macrosMenu_Click">
-                <MenuItem.Icon>
-                    <Image Source="Resources/macroMenuIcon.png"></Image>
-                </MenuItem.Icon>
-            </MenuItem>
-
-            <MenuItem x:Name="SettingsMenu" Header="Settings" Click="settingsMenu_Click">
-                <MenuItem.Icon>
-                    <Image Source="Resources/settingsIcon.png"/>
-                </MenuItem.Icon>
-            </MenuItem>
             <MenuItem x:Name="ExitMenu" Header="Exit" Click="exitMenu_Click">
                 <MenuItem.Icon>
                     <Image Source="Resources/exitIcon.png"/>

@@ -5,7 +5,7 @@ using BDMultiTool.Core.Notification;
 using BDMultiTool.Core.PInvoke;
 using BDMultiTool.Engines;
 using BDMultiTool.Fishing;
-using BDMultiTool.Macros;
+using BDMultiTool.Market;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -38,19 +38,21 @@ namespace BDMultiTool
             var container = new Container();
 
             //container.Register<IServiceProvider>(() => container);
-            container.Register<IOverlay,Overlay>();
+            //container.Register<IOverlay,Overlay>(Lifestyle.Singleton);
             container.Register<ILogger>(() => LogManager.GetLogger("debug"));
-            container.Register<IWindowAttacher, WindowAttacher>();
-            container.Register<ISettingsWindow,SettingsWindow>();
-            container.Register<INotifier, ToasterNotifier>();
-            container.Register<ISoundNotifier, SoundNotification>();
-            container.Register<IMacroManager, MacroManager>();
-            container.Register<IInputSender, InputSender>();
-            container.Register<IGraphicFactory, GraphicsFactory>();
-            container.Register<IScreenHelper, ScreenHelper>();
-            container.Register<IEngine,FishingEngine>();
-            container.Register<IFishingWindow,FishingLog>();
-            container.Register<IRegonizeArea, RegonizeEngine>();
+            container.Register<IWindowAttacher, WindowAttacher>(Lifestyle.Singleton);
+            //container.Register<ISettingsWindow,SettingsWindow>();
+            container.Register<INotifier, ToasterNotifier>(Lifestyle.Singleton);
+            container.Register<ISoundNotifier, SoundNotification>(Lifestyle.Singleton);
+            //container.Register<IMacroManager, MacroManager>();
+            container.Register<IInputSender, InputSender>(Lifestyle.Singleton);
+            container.Register<IGraphicFactory, GraphicsFactory>(Lifestyle.Singleton);
+            container.Register<IScreenHelper, ScreenHelper>(Lifestyle.Singleton);
+            //container.Register<IEngine,FishingEngine>();
+            container.Register<IEngine, MarketEngine>(Lifestyle.Singleton);
+            //container.Register<IFishingWindow,FishingLog>();
+            container.Register<IMarketWindow, Market.Market>();
+            container.Register<IRegonizeArea, RegonizeEngine>(Lifestyle.Singleton);
 
             // Register your types, for instance:
             //container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
@@ -69,7 +71,7 @@ namespace BDMultiTool
                 var notifier = container.GetInstance<INotifier>();
                 var screenHelper = container.GetInstance<IScreenHelper>();
 
-                var app = new MyApp(windowAttacher, notifier, screenHelper);
+                var app = new MyApp(windowAttacher, notifier, screenHelper, container);
                 app.Run();
 
 

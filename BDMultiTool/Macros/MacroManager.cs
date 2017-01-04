@@ -4,29 +4,32 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.Windows.Controls;
+using BDMultiTool.Core;
 using BDMultiTool.Core.PInvoke;
 
 namespace BDMultiTool.Macros
 {
     public interface IMacroManager
     {
+        void update();
+        void removeMacroByName(string macroName);
+        CycleMacro getMacroByName(string macroName);
+        void addMacro(CycleMacro currentMacro);
     }
 
-    public class MacroManager : IMacroManager
+    public class MacroManager : UserControl, IMacroManager
     {
-        private readonly IOverlay _overlay;
-        private readonly IWindowAttacher _windowAttacher;
+        private readonly IInputSender _inputSender;
         private readonly ConcurrentDictionary<string, CycleMacro> _macros;
-        private MacroGallery macroGallery;
+        private readonly MacroGallery _macroGallery;
 
-        public MacroManager(IOverlay overlay, IWindowAttacher windowAttacher)
+        public MacroManager(IInputSender inputSender)
         {
-            _overlay = overlay;
-            _windowAttacher = windowAttacher;
+            _inputSender = inputSender;
             _macros = new ConcurrentDictionary<String, CycleMacro>();
-            macroGallery = new MacroGallery();
-            macroGallery.initialize();
-
+            _macroGallery = new MacroGallery();
+            _macroGallery.initialize();
 
             PersistenceContainer[] savedMacros = PersistenceUnitThread.persistenceUnit.loadContainersByType(typeof(CycleMacro).Name);
             foreach (PersistenceContainer currentPersistenceContainer in savedMacros)
@@ -86,10 +89,10 @@ namespace BDMultiTool.Macros
 
                     macroItemModels.Add(currentMacroItemModel);
 
-                    macroGallery.Dispatcher.Invoke((Action)(() =>
+                    _macroGallery.Dispatcher.Invoke((Action)(() =>
                     {
                         bool macroContained = false;
-                        foreach (MacroItemModel currentInnerMacroItemModel in macroGallery.macroItemModels)
+                        foreach (MacroItemModel currentInnerMacroItemModel in _macroGallery.macroItemModels)
                         {
                             if (currentInnerMacroItemModel.MacroName == currentMacroItemModel.MacroName)
                             {
@@ -103,7 +106,7 @@ namespace BDMultiTool.Macros
                         }
                         if (!macroContained)
                         {
-                            macroGallery.addMacro(currentMacroItemModel);
+                            _macroGallery.addMacro(currentMacroItemModel);
                         }
                     }));
                 }
@@ -119,13 +122,13 @@ namespace BDMultiTool.Macros
 
             deletedMacro.DeletePersistence();
 
-            macroGallery.Dispatcher.Invoke((Action)(() =>
+            _macroGallery.Dispatcher.Invoke((Action)(() =>
             {
-                foreach (MacroItemModel currentInnerMacroItemModel in macroGallery.macroItemModels)
+                foreach (MacroItemModel currentInnerMacroItemModel in _macroGallery.macroItemModels)
                 {
                     if (currentInnerMacroItemModel.MacroName == deletedMacro.Name)
                     {
-                        macroGallery.macroItemModels.Remove(currentInnerMacroItemModel);
+                        _macroGallery.macroItemModels.Remove(currentInnerMacroItemModel);
                         break;
                     }
                 }
@@ -140,13 +143,13 @@ namespace BDMultiTool.Macros
 
             deletedMacro.DeletePersistence();
 
-            macroGallery.Dispatcher.Invoke((Action)(() =>
+            _macroGallery.Dispatcher.Invoke((Action)(() =>
             {
-                foreach (MacroItemModel currentInnerMacroItemModel in macroGallery.macroItemModels)
+                foreach (MacroItemModel currentInnerMacroItemModel in _macroGallery.macroItemModels)
                 {
                     if (currentInnerMacroItemModel.MacroName == deletedMacro.Name)
                     {
-                        macroGallery.macroItemModels.Remove(currentInnerMacroItemModel);
+                        _macroGallery.macroItemModels.Remove(currentInnerMacroItemModel);
                         break;
                     }
                 }
@@ -172,7 +175,7 @@ namespace BDMultiTool.Macros
         {
             foreach (System.Windows.Forms.Keys currentKey in keys)
             {
-                _windowAttacher.SendKeypress(currentKey);
+                _inputSender.SendKeys(currentKey);
                 Thread.Sleep(10);
             }
         }

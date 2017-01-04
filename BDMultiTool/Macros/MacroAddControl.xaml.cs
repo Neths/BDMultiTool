@@ -21,10 +21,12 @@ namespace BDMultiTool {
     /// Interaction logic for MacroAddControl.xaml
     /// </summary>
     public partial class MacroAddControl : UserControl {
+        private readonly IMacroManager _macroManager;
         private ObservableCollection<BoxKeyboardPair> comboBoxPairs = new ObservableCollection<BoxKeyboardPair>();
         private ObservableCollection<BoxKeyboardPair> listBoxPairs = new ObservableCollection<BoxKeyboardPair>();
 
-        public MacroAddControl() {
+        public MacroAddControl(IMacroManager macroManager) {
+            _macroManager = macroManager;
             InitializeComponent();
             System.Windows.Forms.Keys[] keys = Enum.GetValues(typeof(System.Windows.Forms.Keys)).Cast<System.Windows.Forms.Keys>().ToArray();
 
@@ -80,7 +82,7 @@ namespace BDMultiTool {
                     currentMacro.Lifetime = int.Parse(lifeTime.Text);
                 }
 
-                MacroManagerThread.macroManager.addMacro(currentMacro);
+                _macroManager.addMacro(currentMacro);
             } catch(Exception exception) {
                 MessageBox.Show("Wrong input, make sure to enter numbers into the interval and life time fields", "Parsing error", MessageBoxButton.OK, MessageBoxImage.Error);
             }

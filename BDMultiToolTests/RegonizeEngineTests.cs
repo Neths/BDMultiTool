@@ -180,6 +180,7 @@ namespace BDMultiToolTests
         [Apartment(ApartmentState.STA)]
         [TestCase("g.jpg")]
         [TestCase("f.jpg")]
+        [TestCase("l.jpg")]
         public void GetWindow(string imageName)
         {
             _graphicFactory.LoadImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\ImageTest\{imageName}"));

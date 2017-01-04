@@ -1,0 +1,82 @@
+{
+  "Market": {
+    "CheckSubWindow": {
+      "Area": {
+        "X": 700,
+        "Y": 45,
+        "Width": 500,
+        "Height": 600
+      },
+      "Color": {
+        "R": 20,
+        "G": 20,
+        "B": 20,
+        "Seuil": 20
+      },
+      "ContourAcceptance": {
+        "Height": 150,
+        "HeightOffset": 150,
+        "Width": 330,
+        "WidthOffset": 100,
+        "Size": 500,
+        "SizeOffset": 500
+      }
+    },
+    "CheckButtonAvailable": {
+      "Area": {
+        "X": 1300,
+        "Y": 273,
+        "Width": 62,
+        "Height": 46
+      },
+      "Color": {
+        "R": 200,
+        "G": 200,
+        "B": 200,
+        "Seuil": 60
+      },
+      "ContourAcceptance": {
+        "Height": 150,
+        "HeightOffset": 150,
+        "Width": 330,
+        "WidthOffset": 330,
+        "Size": 500,
+        "SizeOffset": 500
+      }
+    },
+    "MarketRowAvailable": {
+      "Area": {
+        "X": 782,
+        "Y": 302,
+        "Width": 30,
+        "Height": 17
+      },
+      "Color": {
+        "R": 190,
+        "G": 190,
+        "B": 170,
+        "Seuil": 80
+      },
+      "ContourAcceptance": {
+        "Height": 150,
+        "HeightOffset": 150,
+        "Width": 330,
+        "WidthOffset": 330,
+        "Size": 500,
+        "SizeOffset": 500
+      }
+    },
+    "Refresh": {
+      "X": 920,
+      "Y": 786
+    },
+    "QuantityWindowBuy": {
+      "X": 904,
+      "Y": 646
+    },
+    "MarketRow": {
+      "X": 1330,
+      "Y": 293
+    }
+  }
+}

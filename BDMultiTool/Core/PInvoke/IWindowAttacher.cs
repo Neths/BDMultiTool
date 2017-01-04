@@ -1,11 +1,14 @@
 ﻿using System;
-using System.Windows.Forms;
+using System.Drawing;
+using BDMultiTool.Config;
 
 namespace BDMultiTool.Core.PInvoke
 {
     public interface IWindowAttacher
     {
         void Attach(IntPtr handleToAttach);
-        void SendKeypress(Keys currentKey);
+        IntPtr WindowHandle { get; }
+        Size Size { get; }
+        ScreenConfig Config { get; }
     }
 }

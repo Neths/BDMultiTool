@@ -42,5 +42,9 @@ namespace BDMultiTool.Core.PInvoke
             EVENT_OBJECT_HIDE = 0x8003,
             EVENT_OBJECT_SHOW = 0x8002
         }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall, ExactSpelling = true, SetLastError = true)]
+        public static extern void MoveWindow(IntPtr hwnd, int x, int y, int nWidth, int nHeight, bool bRepaint);
+
     }
 }

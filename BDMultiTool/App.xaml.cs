@@ -4,8 +4,12 @@ using BDMultiTool.Core.PInvoke;
 using BDMultiTool.Persistence;
 using System;
 using System.IO;
-using System.Reflection;
 using System.Windows;
+using System.Windows.Forms;
+using BDMultiTool.Core.Hook;
+using BDMultiTool.Engines;
+using SimpleInjector;
+using Application = System.Windows.Application;
 
 namespace BDMultiTool
 {
@@ -16,18 +20,20 @@ namespace BDMultiTool
     {
         private readonly IWindowAttacher _windowAttacher;
         private readonly INotifier _notifier;
+        private readonly Container _container;
         public const string version = "0.1";
         public static volatile bool appCoreIsInitialized = false;
 
         public static volatile bool minimized;
 
-        public MyApp(IWindowAttacher windowAttacher, INotifier notifier, IScreenHelper screenHelper)
+        public MyApp(IWindowAttacher windowAttacher, INotifier notifier, IScreenHelper screenHelper, Container container)
         {
-            var d = new DebugWindow(screenHelper);
-            d.Show();
+            //var d = new DebugWindow(screenHelper);
+            //d.Show();
 
             _windowAttacher = windowAttacher;
             _notifier = notifier;
+            _container = container;
 
             if (!Directory.Exists(BDMTConstants.WORKSPACE_NAME)) {
                 Directory.CreateDirectory(BDMTConstants.WORKSPACE_NAME);
@@ -43,22 +49,20 @@ namespace BDMultiTool
 
             appCoreIsInitialized = true;
 
-            letAllComponentsRegister();
+            HookManager.KeyPress += HookManagerOnKeyPress;
+
+            //letAllComponentsRegister();
         }
 
+        private void HookManagerOnKeyPress(object sender, KeyPressEventArgs keyPressEventArgs)
+        {
+            if(keyPressEventArgs.KeyChar != char.Parse("$"))
+                return;
 
-        private void letAllComponentsRegister() {
-            Type multiToolType = typeof(MultiToolMarkUpThread);
-            
-            foreach (Assembly currentAssembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                Type[] currentType = currentAssembly.GetTypes();
+            var engines = _container.GetInstance<IEngine>();
 
-                foreach(Type currentInnerType in currentType) {
-                    if (multiToolType.IsAssignableFrom(currentInnerType) && !currentInnerType.IsInterface) {
-                        Activator.CreateInstance(currentInnerType);
-                    }
-                }
-            }
+            if(engines.Running)
+                engines.Stop();
         }
 
         protected override void OnStartup(StartupEventArgs e) {
@@ -70,7 +74,7 @@ namespace BDMultiTool
 
         public static void exit() {
             CustomNotifyIcon.dispose();
-            PersistenceUnitThread.persistenceUnit.persist();
+            //PersistenceUnitThread.persistenceUnit.persist();
             Environment.Exit(0);
         }
     }

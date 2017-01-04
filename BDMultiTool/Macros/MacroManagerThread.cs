@@ -3,24 +3,21 @@ using System.Threading;
 
 namespace BDMultiTool.Macros {
     class MacroManagerThread: MultiToolMarkUpThread{
+        private readonly IMacroManager _macroManager;
         public static volatile bool keepWorking;
-        public static volatile MacroManager macroManager;
+        //public static volatile MacroManager macroManager;
 
-        //static MacroManagerThread()
-        //{
-        //    keepWorking = true;
-        //    macroManager = new MacroManager();
-        //    ThreadManager.registerThread(new Thread(new MacroManagerThread().work));
-        //}
-
-        public MacroManagerThread() {
-            
+        public MacroManagerThread(IMacroManager macroManager)
+        {
+            keepWorking = true;
+            _macroManager = macroManager;
+            ThreadManager.registerThread(new Thread(work));
         }
 
         public void work() {
             while(keepWorking) {
                 if(MyApp.appCoreIsInitialized && !MyApp.minimized) {
-                    macroManager.update();
+                    _macroManager.update();
                     Thread.Sleep(60);
                 } else {
                     Thread.Sleep(300);
