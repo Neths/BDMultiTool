@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using BDMultiTool.Config;
+using Emgu.CV;
+using Emgu.CV.Structure;
 
 namespace BDMultiTool.Core
 {
@@ -16,5 +19,10 @@ namespace BDMultiTool.Core
             RegonizeEngine.ContourAcceptance acceptance);
         IEnumerable<Rectangle> GetAllRectangles(Bitmap img, Rectangle canny, Color color, int colorThreshold,
             RegonizeEngine.ContourAcceptance acceptance);
+
+        bool HaveRectangle(Bitmap img, Rectangle canny, Color color, int colorThreshold,
+            RegonizeEngine.ContourAcceptance acceptance);
+        bool HaveRectangle(Bitmap img, BasicAreaConfig config);
+        Rectangle MatchPattern(Image<Bgr, byte> source, Image<Bgr, byte> pattern);
     }
 }

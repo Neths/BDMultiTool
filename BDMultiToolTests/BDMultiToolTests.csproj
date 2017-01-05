@@ -81,6 +81,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PerfTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegonizeEngineTests.cs" />
     <Compile Include="ScreenConfigTests.cs" />
@@ -94,8 +95,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ImageTest\1600x900-a.JPG" />
+    <Content Include="ImageTest\1600x900-b.JPG" />
     <Content Include="ImageTest\a.jpg" />
     <Content Include="ImageTest\b.JPG" />
+    <Content Include="ImageTest\buyHeader.png" />
     <Content Include="ImageTest\c.JPG" />
     <Content Include="ImageTest\d.JPG" />
     <Content Include="ImageTest\e.JPG" />

@@ -20,8 +20,6 @@ namespace BDMultiTool
         {
             var container = Bootstrap();
 
-            // Any additional other configuration, e.g. of your desired MVVM toolkit.
-
             RunApplication(container);
         }
 
@@ -37,7 +35,6 @@ namespace BDMultiTool
             // Create the container as usual.
             var container = new Container();
 
-            //container.Register<IServiceProvider>(() => container);
             //container.Register<IOverlay,Overlay>(Lifestyle.Singleton);
             container.Register<ILogger>(() => LogManager.GetLogger("debug"));
             container.Register<IWindowAttacher, WindowAttacher>(Lifestyle.Singleton);
@@ -53,10 +50,6 @@ namespace BDMultiTool
             //container.Register<IFishingWindow,FishingLog>();
             container.Register<IMarketWindow, Market.Market>();
             container.Register<IRegonizeArea, RegonizeEngine>(Lifestyle.Singleton);
-
-            // Register your types, for instance:
-            //container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
-            //container.Register<IUserContext, WpfUserContext>();
 
             container.Verify();
 

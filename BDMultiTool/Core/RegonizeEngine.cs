@@ -4,10 +4,12 @@ using System.Drawing;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using BDMultiTool.Config;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
+using OpenTK.Graphics.ES11;
 using Color = System.Drawing.Color;
 using Point = System.Drawing.Point;
 using Size = System.Drawing.Size;
@@ -55,8 +57,6 @@ namespace BDMultiTool.Core
 
                     if (acceptance.ValideHeight(area.Height) && acceptance.ValideWidth(area.Width))
                     {
-                        //var aa = img.Clone(new Rectangle(area.X, area.Y, area.Width, area.Height), img.PixelFormat);
-                        //Clipboard.SetImage(ConvertBitmap(aa));
                         return new Rectangle(new Point(area.X, area.Y), new Size(area.Width, area.Height));
                     }
                 }
@@ -87,16 +87,58 @@ namespace BDMultiTool.Core
 
                     if (acceptance.ValideHeight(area.Height) && acceptance.ValideWidth(area.Width))
                     {
-                        //var aa = img.Clone(new Rectangle(area.X, area.Y, area.Width, area.Height), img.PixelFormat);
-                        //Clipboard.SetImage(ConvertBitmap(aa));
-                        //return new Rectangle(new Point(area.X, area.Y), new Size(area.Width, area.Height));
-
                         result.Add(new Rectangle(new Point(area.X, area.Y), new Size(area.Width, area.Height)));
                     }
                 }
             }
 
             return result;
+        }
+
+        public bool HaveRectangle(Bitmap img, Rectangle canny, Color color, int colorThreshold,
+            ContourAcceptance acceptance)
+        {
+            var config = new BasicAreaConfig
+            {
+                Area = new CaptureAreaConfig { X = canny.X, Y = canny.Y, Width = canny.Width, Height = canny.Height},
+                ContourAcceptance = new ContourAcceptanceConfig
+                {
+                    Height = acceptance.Height, HeightOffset = acceptance.HeightOffset,
+                    Width = acceptance.Width, WidthOffset = acceptance.WidthOffset,
+                    Size = acceptance.Size, SizeOffset = acceptance.SizeOffset
+                },
+                Color = new ColorConfig { R = color.R, G = color.G, B = color.B, Seuil = colorThreshold }
+            };
+
+            return HaveRectangle(img, config);
+        }
+
+        public bool HaveRectangle(Bitmap img, BasicAreaConfig config)
+        {
+            var acceptance = config.ContourAcceptance.ToContourAcceptance();
+            var imgFiltered = FilterImage(new Image<Bgr, byte>(img), new FilterParam(config.Color.ToColor(), config.Color.Seuil));
+
+            using (var contours = new VectorOfVectorOfPoint())
+            {
+                CvInvoke.FindContours(imgFiltered, contours, null, RetrType.List, ChainApproxMethod.LinkRuns);
+
+                for (var i = 0; i < contours.Size; i++)
+                {
+                    var contour = contours[i];
+
+                    if (!acceptance.ValideSize(contour.Size))
+                        continue;
+
+                    var area = CvInvoke.MinAreaRect(contour).MinAreaRect();
+
+                    if (acceptance.ValideHeight(area.Height) && acceptance.ValideWidth(area.Width))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public Rectangle GetRectangle(Rectangle canny, Color color, int colorThreshold, ContourAcceptance acceptance)
@@ -139,6 +181,23 @@ namespace BDMultiTool.Core
         public IEnumerable<Rectangle> GetAreasForImage(Image image)
         {
             throw new NotImplementedException();
+        }
+
+        public Rectangle MatchPattern(Image<Bgr, byte> source, Image<Bgr, byte> pattern)
+        {
+            using (var result = source.MatchTemplate(pattern, TemplateMatchingType.CcoeffNormed))
+            {
+                double[] minValues, maxValues;
+                Point[] minLocations, maxLocations;
+                result.MinMax(out minValues, out maxValues, out minLocations, out maxLocations);
+
+                if (maxValues[0] > 0.9)
+                {
+                    return new Rectangle() { Location = maxLocations[0], Size = pattern.Size};
+                }
+            }
+
+            return Rectangle.Empty;
         }
 
         public class FishTriangle

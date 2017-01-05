@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace BDMultiTool.Core.PInvoke
@@ -10,6 +11,21 @@ namespace BDMultiTool.Core.PInvoke
 
         [DllImport("user32.dll")]
         public static extern bool GetWindowRect(IntPtr hWnd, out Rect lpRect);
+
+        [DllImport("user32.dll")]
+        public static extern void mouse_event(int dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
+        [Flags]
+        public enum MouseEventFlags
+        {
+            LEFTDOWN = 0x00000002,
+            LEFTUP = 0x00000004,
+            MIDDLEDOWN = 0x00000020,
+            MIDDLEUP = 0x00000040,
+            MOVE = 0x00000001,
+            ABSOLUTE = 0x00008000,
+            RIGHTDOWN = 0x00000008,
+            RIGHTUP = 0x00000010
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Rect
@@ -43,8 +59,30 @@ namespace BDMultiTool.Core.PInvoke
             EVENT_OBJECT_SHOW = 0x8002
         }
 
+        public struct SIZE
+        {
+            public int cx;
+            public int cy;
+        }
+        [DllImport("user32.dll", EntryPoint = "GetDesktopWindow")]
+        public static extern IntPtr GetDesktopWindow();
+
+        [DllImport("user32.dll", EntryPoint = "GetDC")]
+        public static extern IntPtr GetDC(IntPtr ptr);
+
+        [DllImport("user32.dll", EntryPoint = "GetSystemMetrics")]
+        public static extern int GetSystemMetrics(int abc);
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowDC")]
+        public static extern IntPtr GetWindowDC(Int32 ptr);
+
+        [DllImport("user32.dll", EntryPoint = "ReleaseDC")]
+        public static extern IntPtr ReleaseDC(IntPtr hWnd, IntPtr hDc);
+
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall, ExactSpelling = true, SetLastError = true)]
         public static extern void MoveWindow(IntPtr hwnd, int x, int y, int nWidth, int nHeight, bool bRepaint);
 
+        public const int SM_CXSCREEN = 0;
+        public const int SM_CYSCREEN = 1;
     }
 }

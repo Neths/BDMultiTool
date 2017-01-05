@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BDMultiTool;
+using BDMultiTool.Core.Factory;
 using BDMultiTool.Core.PInvoke;
 using NUnit.Framework;
 
@@ -27,6 +28,16 @@ namespace BDMultiToolTests
             var b = a.ScreenArea(r);
 
             Clipboard.SetImage(b);
+        }
+
+        [Test, Apartment(ApartmentState.STA)]
+        public void PinvokeTests()
+        {
+            var handle = WindowAttacher.GetHandleByWindowTitleBeginningWith("BLACK DESERT");
+
+            var tmp = GraphicsFactory.CopyFromScreen(handle);
+
+            Clipboard.SetImage(tmp);
         }
     }
 }

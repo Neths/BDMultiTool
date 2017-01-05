@@ -138,6 +138,7 @@
     <Compile Include="Core\InputSender.cs" />
     <Compile Include="Core\Notification\SoundNotification.cs" />
     <Compile Include="Core\Persistence\XmlUtilities.cs" />
+    <Compile Include="Core\PInvoke\Gdi32.cs" />
     <Compile Include="Core\PInvoke\IWindowAttacher.cs" />
     <Compile Include="Core\PInvoke\User32.cs" />
     <Compile Include="Core\RegonizeEngine.cs" />
@@ -185,6 +186,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="VideoTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VideoTest.Designer.cs">
+      <DependentUpon>VideoTest.cs</DependentUpon>
+    </Compile>
     <Page Include="FishDebugWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -231,10 +238,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Config\1920x1080.json">
+    <EmbeddedResource Include="VideoTest.resx">
+      <DependentUpon>VideoTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Config\1680x1050.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Config\1686x1079.json">
+    <None Include="Config\1920x1080.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="OpenTK.dll.config" />
@@ -274,6 +284,12 @@
     <Content Include="Libraries\NAudio.WindowsMediaFormat.dll" />
     <Content Include="Libraries\NVorbis.dll" />
     <Content Include="Libraries\NVorbis.NAudioSupport.dll" />
+    <None Include="Patterns\buyHeader.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Patterns\infoHeader.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Resource Include="Resources\resizeIcon.png" />
   </ItemGroup>
   <ItemGroup>

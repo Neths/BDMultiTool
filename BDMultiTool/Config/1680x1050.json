@@ -25,7 +25,7 @@
     "CheckButtonAvailable": {
       "Area": {
         "X": 1200,
-        "Y": 273,
+        "Y": 280,
         "Width": 62,
         "Height": 46
       },
@@ -47,7 +47,7 @@
     "MarketRowAvailable": {
       "Area": {
         "X": 682,
-        "Y": 302,
+        "Y": 340,
         "Width": 30,
         "Height": 17
       },
@@ -68,15 +68,15 @@
     },
     "Refresh": {
       "X": 820,
-      "Y": 786
+      "Y": 770
     },
     "QuantityWindowBuy": {
       "X": 804,
-      "Y": 646
+      "Y": 630
     },
     "MarketRow": {
       "X": 1230,
-      "Y": 293
+      "Y": 280
     }
   }
 }

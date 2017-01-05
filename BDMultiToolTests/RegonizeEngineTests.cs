@@ -259,6 +259,24 @@ namespace BDMultiToolTests
             Assert.AreEqual(expectedPresent, b.Count(s => s));
         }
 
+        [Apartment(ApartmentState.STA)]
+        [TestCase("g.jpg", "buyHeader.png")]
+        [TestCase("f.jpg", "infoHeader.png")]
+        [TestCase("1600x900-a.jpg", "buyHeader.png")]
+        [TestCase("1600x900-b.jpg", "infoHeader.png")]
+        public void MatchPatternTest(string imageName, string patternName)
+        {
+            var engine = new RegonizeEngine(_screenHelper);
+            var sourceImage = new Image<Bgr, byte>(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\ImageTest\{imageName}"));
+            var searchImg = new Image<Bgr, byte>(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\ImageTest\{patternName}"));
+
+            var result = engine.MatchPattern(sourceImage, searchImg);
+
+            sourceImage.Draw(result, new Bgr(Color.Red), 2);
+
+            Clipboard.SetImage(ConvertBitmap(sourceImage.Bitmap));
+        }
+
         private bool CheckButton(RegonizeEngine engine, int y)
         {
             var r = new Rectangle { X = 1300, Y = y, Width = 62, Height = 46 };

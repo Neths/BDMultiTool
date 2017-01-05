@@ -31,6 +31,9 @@ namespace BDMultiTool
             //var d = new DebugWindow(screenHelper);
             //d.Show();
 
+            var t = new VideoTest();
+            t.Show();
+
             _windowAttacher = windowAttacher;
             _notifier = notifier;
             _container = container;
